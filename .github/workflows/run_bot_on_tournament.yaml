@@ -1,53 +1,75 @@
 name: Forecast on new AI tournament questions
-
 on:
   workflow_dispatch:
   schedule:
-    - cron: "7,27,47 * * * *" # every 20 min, offset off the hour. Make sure to skip already-forecasted questions!
-
-# Add concurrency group to prevent parallel runs
+    - cron: "11,31,51 * * * *"
 concurrency:
-  group: ${{ github.workflow }}
+  group: fbot-post-tournament
   cancel-in-progress: false
-
-
-# Daily job to run the simple forecast bot
+permissions:
+  contents: write
+  actions: write
+  issues: write
 jobs:
   forecast_job:
-    runs-on: ubuntu-latest # determines the machine that will run the job - keep as is
-    steps: # sets up the steps that will be run in order
-      # setup repository with all necessary dependencies - keep as is
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Mark job start
+        run: echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      # Adding the below will make the workflow faster, but will mean you don't automatically get updates from forecasting-tools and other packages
-      # - name: Load cached venv
-      #   id: cached-poetry-dependencies
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: .venv
-      #     key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-      - name: Run bot
+      - name: Install poetry (3 tries)
+        id: poetry
+        continue-on-error: true
         run: |
-          poetry run python main.py
-        # this reads the environment variables from the github repository.
-        # Store under Settings --> Secrets and variables --> Actions
+          for i in 1 2 3; do
+            if pipx install poetry==2.4.1; then
+              poetry config virtualenvs.in-project true
+              exit $?
+            fi
+            sleep 30
+          done
+          exit 1
+      - name: Install dependencies (3 tries)
+        id: install
+        if: steps.poetry.outcome == 'success'
+        continue-on-error: true
+        run: |
+          for i in 1 2 3; do poetry install --no-interaction --no-root && exit 0; sleep 30; done; exit 1
+      - name: Run bot
+        id: run
+        continue-on-error: true
+        timeout-minutes: 58
+        if: steps.install.outcome == 'success' && vars.BOT_ENABLED == 'true'
+        run: |
+          export BOT_ENABLED=true
+          poetry run python main.py --mode tournament --loop-minutes "${LOOP_MINUTES:-45}" --poll-minutes "${POLL_MINUTES:-10}"
         env:
-          METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }} # replace this with the name of the variable under which you stored your own Metaculus token
-          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ASKNEWS_CLIENT_ID: ${{ secrets.ASKNEWS_CLIENT_ID }}
           ASKNEWS_SECRET: ${{ secrets.ASKNEWS_SECRET }}
+          ASKNEWS_API_KEY: ${{ secrets.ASKNEWS_API_KEY }}
+          USE_OPENAI_BRIDGE: ${{ vars.USE_OPENAI_BRIDGE }}
+          LOOP_MINUTES: ${{ vars.LOOP_MINUTES }}
+          POLL_MINUTES: ${{ vars.POLL_MINUTES }}
+          MINIBENCH_MODE: ${{ vars.MINIBENCH_MODE }}
+          SKIP_WITHOUT_RESEARCH: ${{ vars.SKIP_WITHOUT_RESEARCH }}
+      - name: Ops
+        if: always()
+        run: python3 -m fbot.ops --after-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALERT_MENTION: ${{ vars.ALERT_MENTION }}
+          METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          BOT_ENABLED: ${{ vars.BOT_ENABLED }}
+          CHAIN_ENABLED: ${{ vars.CHAIN_ENABLED }}
+          INSTALL_OUTCOME: ${{ steps.poetry.outcome == 'failure' && 'failure' || steps.install.outcome }}
+          RUN_OUTCOME: ${{ steps.run.outcome }}
