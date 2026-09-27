@@ -1,4 +1,5 @@
 import threading
+import time
 from . import SkipQuestion
 from .config import enabled
 from .types import Research
@@ -28,6 +29,7 @@ class Service:
         self.lock = threading.Lock()
         self.total = self.missing = 0
         self.errors = {}
+        self.sleep = time.sleep
 
     def get(self, question, deadline=None):
         with self.lock:
@@ -46,7 +48,7 @@ class Service:
                 elif self.fetch is None:
                     self.errors[question.qid] = "NO_FETCH"
                 if auth is not None and self.fetch is not None:
-                    for attempt in range(2):
+                    for attempt in range(4):
                         timeout = 60 if deadline is None else min(60, deadline - self.state.clock.monotonic())
                         if timeout <= 0:
                             self.errors[question.qid] = "NO_TIME"
@@ -62,6 +64,15 @@ class Service:
                             break
                         except Exception as exc:
                             self.errors[question.qid] = error_code(exc)
+                            # A rate limit (HTTP 429) waits and tries again, up to 3 retries; any other
+                            # failure keeps the original single retry.
+                            if self.errors[question.qid].endswith(":429"):
+                                if attempt < 3:
+                                    self.sleep(5 * (attempt + 1))
+                                    continue
+                                break
+                            if attempt >= 1:
+                                break
                             # One logical query; only a failed request gets one retry.
                             continue
                 self.cache[question.qid] = value
