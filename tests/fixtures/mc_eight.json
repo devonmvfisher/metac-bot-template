@@ -1,0 +1,29 @@
+{
+  "question": {
+    "qid": 7005,
+    "post_id": 9005,
+    "kind": "multiple_choice",
+    "target": "season",
+    "title": "Synthetic fixture mc eight",
+    "background": "Invented offline test data.",
+    "resolution": "Resolve using the fictional published index on the stated date.",
+    "fine_print": "No live question is represented.",
+    "lower": 0,
+    "upper": 100,
+    "unit": "index units",
+    "close_time": "2026-10-20T12:00:00Z",
+    "resolve_time": "2026-12-01T00:00:00Z",
+    "options": [
+      "Very long option 1",
+      "Very long option 2",
+      "Very long option 3",
+      "Very long option 4",
+      "Very long option 5",
+      "Very long option 6",
+      "Very long option 7",
+      "Very long option 8"
+    ]
+  },
+  "fixture_only": true,
+  "model_text": "OUTSIDE VIEW: Comparable fictional cases; base rate 20%.\nINSIDE VIEW: A synthetic fact pushes upward.\nFINAL\nVery long option 1: 0.001\nVery long option 2: 0.1427142857142857\nVery long option 3: 0.1427142857142857\nVery long option 4: 0.1427142857142857\nVery long option 5: 0.1427142857142857\nVery long option 6: 0.1427142857142857\nVery long option 7: 0.1427142857142857\nVery long option 8: 0.1427142857142857"
+}

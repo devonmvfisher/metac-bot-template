@@ -1,0 +1,33 @@
+{
+  "question": {
+    "qid": 8401,
+    "post_id": 9401,
+    "kind": "discrete",
+    "target": "season",
+    "title": "Synthetic fixture discrete ten",
+    "background": "Invented offline test data.",
+    "resolution": "Resolve using the fictional published index on the stated date.",
+    "fine_print": "No live question is represented.",
+    "lower": 0,
+    "upper": 10,
+    "unit": "index units",
+    "close_time": "2026-10-20T12:00:00Z",
+    "resolve_time": "2026-12-01T00:00:00Z",
+    "inbound_outcome_count": 10
+  },
+  "fixture_only": true,
+  "cdf": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "model_text": "OUTSIDE VIEW: Synthetic base rate 20%.\nINSIDE VIEW: Small integer count.\nFINAL\nPercentile 10: 3\nPercentile 20: 3\nPercentile 40: 3\nPercentile 60: 3\nPercentile 80: 3\nPercentile 90: 3"
+}

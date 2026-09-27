@@ -1,0 +1,33 @@
+{
+  "question": {
+    "qid": 7006,
+    "post_id": 9006,
+    "kind": "multiple_choice",
+    "target": "season",
+    "title": "Synthetic fixture mc retired",
+    "background": "Invented offline test data.",
+    "resolution": "Resolve using the fictional published index on the stated date.",
+    "fine_print": "No live question is represented.",
+    "lower": 0,
+    "upper": 100,
+    "unit": "index units",
+    "close_time": "2026-10-20T12:00:00Z",
+    "resolve_time": "2026-12-01T00:00:00Z",
+    "options": [
+      "Alpha",
+      "Beta",
+      "Gamma"
+    ],
+    "retired": [
+      "Retired option"
+    ]
+  },
+  "fixture_only": true,
+  "options_history": [
+    {
+      "name": "Retired option",
+      "retired": true
+    }
+  ],
+  "model_text": "OUTSIDE VIEW: Comparable fictional cases; base rate 20%.\nINSIDE VIEW: A synthetic fact pushes upward.\nFINAL\nAlpha: 0.001\nBeta: 0.4995\nGamma: 0.4995"
+}

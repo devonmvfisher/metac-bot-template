@@ -1,0 +1,17 @@
+{
+  "pyproject.toml": {
+    "bytes": 679,
+    "sha256": "f4b172b96f833b009305bc2a7c6b2f2559ef42ad1676d4a7ffd8c466abbad5fa",
+    "git_blob": "146c58d3504209b378e5b17df102ab42fab888b6"
+  },
+  "poetry.lock": {
+    "bytes": 490331,
+    "sha256": "cdcc3127e0caf34a019f9ebdb38984603b586a1e79b993a296a33bc8f310cd7f",
+    "git_blob": "c587193727839ea6ec6b85270caede6d79150440"
+  },
+  "bot_helpers.py": {
+    "bytes": 4807,
+    "sha256": "b7e9a153b4a8bcded2ebd80398d06b7a170fb6eb8de69dc79924579c78c639f6",
+    "git_blob": "3e0c97f2f845566e0fe2266e813e420f40dd112e"
+  }
+}

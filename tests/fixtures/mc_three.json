@@ -1,0 +1,24 @@
+{
+  "question": {
+    "qid": 7004,
+    "post_id": 9004,
+    "kind": "multiple_choice",
+    "target": "season",
+    "title": "Synthetic fixture mc three",
+    "background": "Invented offline test data.",
+    "resolution": "Resolve using the fictional published index on the stated date.",
+    "fine_print": "No live question is represented.",
+    "lower": 0,
+    "upper": 100,
+    "unit": "index units",
+    "close_time": "2026-10-20T12:00:00Z",
+    "resolve_time": "2026-12-01T00:00:00Z",
+    "options": [
+      "Red",
+      "Green",
+      "Blue"
+    ]
+  },
+  "fixture_only": true,
+  "model_text": "OUTSIDE VIEW: Comparable fictional cases; base rate 20%.\nINSIDE VIEW: A synthetic fact pushes upward.\nFINAL\nRed: 0.001\nGreen: 0.4995\nBlue: 0.4995"
+}
