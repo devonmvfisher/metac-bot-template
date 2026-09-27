@@ -255,6 +255,54 @@ class ReviewTests(unittest.TestCase):
         self.assertNotIn("fbot-post-tournament", test)
         self.assertIn('cron: "11,31,51 * * * *"', tournament)
 
+    def test_R27_readback_retries_rate_limits_then_fails_closed(self):
+        from fbot import metadata
+        replies = [(429, {}), (503, {}), (200, {"question": {"id": 1, "my_forecasts": {"latest": {"id": 3}}}})]
+        naps = []
+        self.assertIs(metadata.already_forecast(2, 1, {}, lambda *a: replies.pop(0), sleep=naps.append), True)
+        self.assertEqual(naps, [2, 4])
+        naps.clear()
+        self.assertIsNone(metadata.already_forecast(2, 1, {}, lambda *a: (429, {}), sleep=naps.append))
+        self.assertEqual(naps, [2, 4])
+        def boom(*a):
+            raise OSError("reset")
+        naps.clear()
+        self.assertIsNone(metadata.already_forecast(2, 1, {}, boom, sleep=naps.append))
+        self.assertEqual(naps, [2, 4])
+        naps.clear()
+        self.assertIsNone(metadata.already_forecast(2, 1, {}, lambda *a: (500, {}), sleep=naps.append))
+        self.assertEqual(naps, [])
+        self.assertIs(metadata.already_forecast(2, 1, {}, lambda *a: (200, {"question": {"id": 1, "my_forecasts": {"latest": {}}}}), sleep=naps.append), False)
+        self.assertEqual(naps, [])
+
+    def test_R28_research_records_error_codes_without_text(self):
+        from fbot.research import Service, error_code
+        class Boom(Exception):
+            status_code = 401
+        class Plain(Exception):
+            pass
+        self.assertEqual(error_code(Boom("secret text")), "Boom:401")
+        self.assertEqual(error_code(Plain("secret text")), "Plain")
+        class Resp:
+            status_code = 429
+        wrapped = Plain("x")
+        wrapped.response = Resp()
+        self.assertEqual(error_code(wrapped), "Plain:429")
+        from tests.fakes import deps_for, fixture
+        q, _ = fixture("binary_long")
+        deps = deps_for({})
+        def fail(*a, **k):
+            raise Boom("provider says secret")
+        service = Service({"ASKNEWS_API_KEY": "FAKEKEY123"}, deps.state, fail)
+        self.assertFalse(service.get(q).available)
+        self.assertEqual(service.errors[q.qid], "Boom:401")
+        none = Service({}, deps_for({}).state, fail)
+        none.get(q)
+        self.assertEqual(none.errors[q.qid], "NO_KEY")
+        ok = Service({"ASKNEWS_API_KEY": "FAKEKEY123"}, deps_for({}).state, lambda *a, **k: ("news", 1))
+        self.assertTrue(ok.get(q).available)
+        self.assertEqual(ok.errors[q.qid], "OK")
+
     def test_R24_single_prediction_is_not_reaggregated(self):
         module, _ = load_adapter()
         bot = module.FBot()
