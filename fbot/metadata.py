@@ -1,6 +1,9 @@
 """Read-only count/read-back metadata using the cloned endpoint shapes."""
+import time
 from urllib.parse import urlencode
 from .llm import transport
+
+RETRY_STATUS = (429, 502, 503, 504)
 
 
 def open_count(target, env, send=transport):
@@ -25,11 +28,25 @@ def open_count(target, env, send=transport):
     return "unknown"
 
 
-def already_forecast(post_id, qid, env, send=transport):
-    """Unknown metadata fails closed; a nonempty latest object means found."""
+def already_forecast(post_id, qid, env, send=transport, sleep=time.sleep, tries=3):
+    """Unknown metadata fails closed; a nonempty latest object means found.
+
+    A rate limit or a dropped reply is retried twice (2 s, then 4 s) before it counts as unknown.
+    """
+    status, post = None, None
+    for attempt in range(tries):
+        try:
+            status, post = send("GET", f"https://www.metaculus.com/api/posts/{post_id}/",
+                                {"Authorization": "Token " + env.get("METACULUS_TOKEN", "")}, None, 15)
+        except Exception:
+            status, post = None, None
+        if status is None or status in RETRY_STATUS:
+            if attempt + 1 < tries:
+                sleep(2 * (attempt + 1))
+                continue
+            return None
+        break
     try:
-        status, post = send("GET", f"https://www.metaculus.com/api/posts/{post_id}/",
-                            {"Authorization": "Token " + env.get("METACULUS_TOKEN", "")}, None, 15)
         if status != 200 or not isinstance(post, dict):
             return None
         questions = [post.get("question")]
