@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-27 - v0.2.2
+
+From the first live Test Bot runs (Claude, on the HP): R27 retries a read-back that hits a rate limit or loses its reply (2 s, then 4 s) before it counts as unknown, so a burst no longer skips a question; R28 adds a provider-free reason (exception class and HTTP status only) to each RESEARCH log line, to diagnose AskNews returning no articles. Tests added for both. No other change.
+
 ## 2026-09-27 - v0.2.1
 
 Go-live fixes from Claude's v0.2 review (REVIEW-A5-v0.2.md), applied by Claude on the HP to Astra's v0.2 so Sextant can go live before the season opens: R24 posts the registered prediction as-is when there is one prediction (the SDK re-aggregation re-standardized numeric and discrete CDFs and the post gate blocked every one); R25 sends a Sextant User-Agent on fbot's own HTTP reads; R26 turns off the unused SDK research summarizer. Tests: 129 unit tests, 24/24 mutations. No other change. Astra folds R24-R26 into v0.3.
