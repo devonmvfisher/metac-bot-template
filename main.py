@@ -114,7 +114,7 @@ def install_post_gate(gate):  # GLUE (NOT EXECUTED offline)
 
 
 def ask_news(query, auth, timeout, strategy, n_articles):  # GLUE (NOT EXECUTED offline)
-    from asknews import AskNewsSDK  # GLUE (NOT EXECUTED offline)
+    from asknews_sdk import AskNewsSDK  # GLUE (NOT EXECUTED offline)
     from concurrent.futures import ThreadPoolExecutor  # GLUE (NOT EXECUTED offline)
     # The pair/scopes/search pattern is visible in the cloned no-framework example.  # GLUE (NOT EXECUTED offline)
     ask = AskNewsSDK(**auth, scopes={"news"})  # GLUE (NOT EXECUTED offline)

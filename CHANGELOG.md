@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-27 - v0.2.3
+
+R29: AskNews import fixed. The pinned asknews 0.13.45 wheel ships the module asknews_sdk, not asknews, so every research call failed before any request (found in the v0.3-r1 review). main.py now imports asknews_sdk, as the Metaculus template does. No other change.
+
 ## 2026-09-27 - v0.2.2
 
 From the first live Test Bot runs (Claude, on the HP): R27 retries a read-back that hits a rate limit or loses its reply (2 s, then 4 s) before it counts as unknown, so a burst no longer skips a question; R28 adds a provider-free reason (exception class and HTTP status only) to each RESEARCH log line, to diagnose AskNews returning no articles. Tests added for both. No other change.
