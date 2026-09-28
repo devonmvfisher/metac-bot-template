@@ -1,6 +1,7 @@
 """Credit pacing with locked conservative reservations between key refreshes."""
 import threading
 import logging
+import math
 from . import SkipQuestion
 from .config import COSTS, FLOOR_CREDIT, enabled
 from .targets import utc
@@ -56,6 +57,35 @@ def choose(now, remaining, target, mode="always"):
     return next((tier for tier in ("A", "B", "C") if COSTS[tier] <= allowance), "C")
 
 
+def configure_preset(env, state):
+    """Read repository settings once; never echo untrusted configuration text."""
+    with state.lock:
+        if state.model_preset is not None:
+            return
+        preset = (env.get("MODEL_PRESET") or "auto").strip().upper() or "AUTO"
+        if preset not in ("AUTO", "A", "B", "C"):
+            preset = "AUTO"
+            state.counts["preset_invalid"] += 1
+            state.alert("PRESET_CONFIG_INVALID")
+        state.model_preset = "auto" if preset == "AUTO" else preset
+        try:
+            reserve = float((env.get("PRESET_RESERVE_USD") or "10").strip() or "10")
+            if not math.isfinite(reserve) or reserve < 0:
+                raise ValueError()
+        except (TypeError, ValueError):
+            reserve = 10.0
+            state.counts["preset_reserve_invalid"] += 1
+            state.alert("PRESET_CONFIG_INVALID")
+        state.preset_reserve_usd = reserve
+
+
+def log_preset(state):
+    """One end-of-run line; list season tiers selected, or none if absent."""
+    with state.lock:
+        tiers = ",".join(sorted(state.preset_tiers)) or "none"
+        logging.getLogger("fbot").info("PRESET %s tier=%s", state.model_preset or "auto", tiers)
+
+
 class Pacer:
     def __init__(self, env, client, state, clock):
         self.env, self.client, self.state, self.clock = env, client, state, clock
@@ -63,6 +93,7 @@ class Pacer:
         self.remaining = None
         self.reserved = 0
         self.refreshed = False
+        configure_preset(env, state)
 
     def refresh(self):
         from . import CreditExhausted
@@ -92,6 +123,9 @@ class Pacer:
                 if bridge and "bridge" not in self.client.exhausted:
                     if question.target == "minibench":
                         raise SkipQuestion("BUDGET_MINIBENCH")
+                    if question.target == "season":
+                        with self.state.lock:
+                            self.state.preset_tiers.add("BRIDGE")
                     return "BRIDGE"
                 exhausted = bool(self.client.exhausted)
                 self.state.alert("CREDITS_EXHAUSTED" if exhausted else "NO_LLM_KEY")
@@ -106,6 +140,13 @@ class Pacer:
                 raise
             if forced_c:
                 tier = "C"
+            preset = self.state.model_preset
+            if (question.target == "season" and preset in ("A", "B", "C") and credit is not None
+                    and credit - FLOOR_CREDIT >= self.state.preset_reserve_usd + COSTS[preset]):
+                tier = preset
             self.reserved += COSTS[tier]
             self.state.tiers[tier] += 1
+            if question.target == "season":
+                with self.state.lock:
+                    self.state.preset_tiers.add(tier)
             return tier

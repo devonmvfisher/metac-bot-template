@@ -10,7 +10,8 @@ ALERTS = frozenset({"CREDITS_EXHAUSTED", "NO_LLM_KEY", "NO_FALL_QUESTIONS",
                    "INSTALL_FAILING", "HEARTBEAT_FAILED", "API_REJECTED", "SEASON_OVER",
                    "CREDITS_LOW", "CREDIT_UNKNOWN", "MODEL_UNAVAILABLE",
                    "RESEARCH_UNAVAILABLE", "SKIPS", "SCHEDULER_GAPS",
-                   "GATE_BLOCKED", "RUN_FAILED", "POLL_FAILING", "COMMENT_FAILED"})
+                   "GATE_BLOCKED", "RUN_FAILED", "POLL_FAILING", "COMMENT_FAILED",
+                   "PRESET_CONFIG_INVALID"})
 
 
 class RunState:
@@ -34,6 +35,9 @@ class RunState:
         self.credit_after = None
         self.limit = None
         self.tiers = Counter()
+        self.model_preset = None
+        self.preset_reserve_usd = 10.0
+        self.preset_tiers = set()
 
     def alert(self, key):
         if key in ALERTS:

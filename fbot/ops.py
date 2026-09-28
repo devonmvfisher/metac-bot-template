@@ -19,6 +19,7 @@ P0 = frozenset({"CREDITS_EXHAUSTED", "NO_LLM_KEY", "NO_FALL_QUESTIONS", "INSTALL
                 "HEARTBEAT_FAILED", "API_REJECTED", "SEASON_OVER",
                 "GATE_BLOCKED", "RUN_FAILED", "POLL_FAILING", "COMMENT_FAILED"})
 STEPS = {
+    "PRESET_CONFIG_INVALID": "Set MODEL_PRESET to auto, A, B or C and PRESET_RESERVE_USD to a nonnegative number (default 10). Invalid preset uses auto; invalid reserve uses 10.",
     "CREDITS_EXHAUSTED": "Assume no more credit is coming; submit another credit form yourself, in your own words; check the configured bridge or leave the bot stopped.",
     "GATE_BLOCKED": "The bot refused to send a forecast it could not verify. If it repeats and no helper is available, set BOT_ENABLED=false.",
     "RUN_FAILED": "If it repeats and no helper is available, set BOT_ENABLED=false.",
@@ -208,7 +209,7 @@ def safe_counts(data):
     def subset(key, names):
         return {name: max(0, int(value)) for name, value in data.get(key, {}).items()
                 if name in names and isinstance(value, (int, float))}
-    return {"counts": subset("counts", {"season", "minibench", "test", "poll_errors", "gate_blocks", "memo_hits"}),
+    return {"counts": subset("counts", {"season", "minibench", "test", "poll_errors", "gate_blocks", "memo_hits", "preset_invalid", "preset_reserve_invalid"}),
             "skips": subset("skips", REASONS - {"BUDGET_MINIBENCH", "DISABLED", "ALREADY_FORECAST"})}
 
 
