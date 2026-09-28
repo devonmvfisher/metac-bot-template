@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-27 - v0.3-r3
+
+R31 fixes the open-question counter and the coverage reader. The site's post list never marks a last page (its "next" link is never null), so before R31 both readers kept reading past the last page to the page cap and ended unknown; now each stops on an empty page or a page shorter than the limit it asked for, under the same cap. The coverage reader asks for our own forecasts (with_cp=true), so it can tell answered questions from missed ones; a question that comes back without them makes that target's coverage unknown, not all missed. Both readers use the site's include_descriptions name (include_description was ignored). Group sub-questions are counted; sub-questions still upcoming or open are skipped; a question repeated across pages counts once; closes before launch (Sep 28 00:00 UTC) are not counted. A failed read logs its reason as an HTTP status or error class (TARGET open=unknown:403, COVERAGE target=minibench unknown reason=403); POLL_FAILING still fires when both counts are unknown. After each run, Ops logs one COVERAGE line per target with closed, forecasted and missed question IDs, and the SKIPS and NO_FALL_QUESTIONS alerts carry those COVERAGE lines. Filter keys are sent repeated, as the SDK sends them; that is a request-shape change, not a fix. No other change.
+
 ## 2026-09-27 - v0.3-r2
 
 Astra's v0.3-r1 (MODEL_PRESET strong start, R24-R26) merged by Claude with the live v0.2.2-v0.2.4 fixes: R27 read-back retry on rate limits, R28 research error codes in logs, R29 AskNews import (asknews_sdk), R30 AskNews 429 backoff. No other change.
