@@ -10,6 +10,7 @@ import time
 from urllib.parse import urlencode
 from .config import SEASON_ID, MINIBENCH_ID, enabled
 from .llm import transport
+from .metadata import questions_of, reason
 from .runloop import should_dispatch, dispatch_wait
 from .state import ALERTS
 from .targets import active, utc
@@ -18,6 +19,8 @@ from .types import Clock
 P0 = frozenset({"CREDITS_EXHAUSTED", "NO_LLM_KEY", "NO_FALL_QUESTIONS", "INSTALL_FAILING",
                 "HEARTBEAT_FAILED", "API_REJECTED", "SEASON_OVER",
                 "GATE_BLOCKED", "RUN_FAILED", "POLL_FAILING", "COMMENT_FAILED"})
+LAST_COVERAGE_ERRORS = {}  # target -> reason of the last failed read_coverage; logged, never raised
+COVERAGE_SINCE = "2026-09-28T00:00:00Z"  # season start / go-live; earlier closes could never be forecast
 STEPS = {
     "PRESET_CONFIG_INVALID": "Set MODEL_PRESET to auto, A, B or C and PRESET_RESERVE_USD to a nonnegative number (default 10). Invalid preset uses auto; invalid reserve uses 10.",
     "CREDITS_EXHAUSTED": "Assume no more credit is coming; submit another credit form yourself, in your own words; check the configured bridge or leave the bot stopped.",
@@ -148,48 +151,68 @@ def longest_gap(runs, now):
 
 
 def coverage(posts, now):
-    total, forecasted, missed = 0, 0, []
-    for post in posts:
-        question = post.get("question")
+    total, forecasted, missed, seen = 0, 0, [], set()
+    since = max(now - timedelta(days=7), utc(COVERAGE_SINCE))
+    for question in (question for post in posts for question in questions_of(post)):
         if not isinstance(question, dict):
+            continue
+        if question.get("status") in ("upcoming", "open"):  # not closed on the site yet; a closed group can hold these
             continue
         close = question.get("actual_close_time") or question.get("scheduled_close_time")
         if not close:
             raise ValueError("coverage unknown")
         closed = utc(close)
-        if not now - timedelta(days=7) <= closed <= now:
+        if not since <= closed <= now:
             continue
+        if "my_forecasts" not in question:  # sent only with with_cp=true and a valid token: unknown, not missed
+            raise ValueError("coverage unknown")
+        qid = int(question["id"])
+        if qid in seen:  # offset pages can repeat a post
+            continue
+        seen.add(qid)
         total += 1
-        latest = ((question.get("my_forecasts") or {}).get("latest") or {})
-        if latest.get("forecast_values") is not None:
+        latest = (question.get("my_forecasts") or {}).get("latest")
+        if isinstance(latest, dict) and latest.get("forecast_values") is not None:
             forecasted += 1
         else:
-            missed.append(int(question["id"]))
+            missed.append(qid)
     return {"closed": total, "forecasted": forecasted,
             "coverage": forecasted / total * 100 if total else None, "missed": missed}
 
 
 def read_coverage(env, now, send=transport):
     results = {}
+    LAST_COVERAGE_ERRORS.clear()
     for target, target_id in (("season", SEASON_ID), ("minibench", MINIBENCH_ID)):
         posts = []
         try:
             for offset in range(0, 10000, 100):
-                params = urlencode({"tournaments": target_id, "statuses": "closed,resolved",
-                                    "limit": 100, "offset": offset, "include_description": "false"})
+                params = urlencode([("tournaments", target_id), ("statuses", "closed"), ("statuses", "resolved"),
+                                    ("limit", 100), ("offset", offset), ("include_descriptions", "false"),
+                                    ("with_cp", "true")])
                 status, data = send("GET", "https://www.metaculus.com/api/posts/?" + params,
                                      {"Authorization": "Token " + env.get("METACULUS_TOKEN", "")}, None, 30)
-                if status != 200 or not isinstance(data.get("results"), list):
-                    raise ValueError()
+                if status != 200 or not isinstance(data, dict) or not isinstance(data.get("results"), list):
+                    raise ApiError(status)
                 posts.extend(data["results"])
-                if not data.get("next"):
+                # The site's list has no count, so "next" is never null: an empty or short page is the last.
+                if not data.get("next") or len(data["results"]) < 100:
                     break
             else:
-                raise ValueError()
+                raise ApiError("pages")
             results[target] = coverage(posts, now)
-        except Exception:
+        except Exception as error:
             results[target] = None
+            LAST_COVERAGE_ERRORS[target] = reason(error.status if isinstance(error, ApiError) else error)
     return results
+
+
+def coverage_line(target, item):
+    if item is None:
+        return f"COVERAGE target={target} unknown reason={LAST_COVERAGE_ERRORS.get(target, 'unknown')}"
+    missed = [str(int(qid)) for qid in item["missed"]]
+    shown = ",".join(missed[:20] + ([f"+{len(missed) - 20}"] if len(missed) > 20 else [])) or "-"
+    return f"COVERAGE target={target} closed={int(item['closed'])} forecasted={int(item['forecasted'])} missed={shown}"
 
 
 def issue_once(github, title, body, label, now, hours, issues=None):
@@ -272,7 +295,7 @@ def run(env, data, clock, github, git, root=".", coverage_reader=None, emit=prin
         alerts.add("HEARTBEAT_FAILED")
     if not active(clock.now()):
         alerts.add("SEASON_OVER")
-    coverage_data, gap = {}, None
+    coverage_data, gap, coverage_rows = {}, None, []
     if enabled_bot:
         alerts.update(key for key in data.get("alerts", []) if key in ALERTS)
         if env.get("INSTALL_OUTCOME") == "failure":
@@ -288,10 +311,18 @@ def run(env, data, clock, github, git, root=".", coverage_reader=None, emit=prin
         except Exception:
             gap = None
         if coverage_reader:
+            LAST_COVERAGE_ERRORS.clear()
             try:
                 coverage_data = coverage_reader()
-            except Exception:
+            except Exception as error:
                 coverage_data = {}
+                LAST_COVERAGE_ERRORS.update(season=reason(error), minibench=reason(error))
+            for target in ("season", "minibench"):
+                try:
+                    coverage_rows.append(coverage_line(target, coverage_data.get(target)))
+                except Exception as error:
+                    coverage_rows.append(f"COVERAGE target={target} unknown reason={reason(error)}")
+                emit(coverage_rows[-1])
         for target, item in coverage_data.items():
             if item is not None:
                 if item.get("coverage") is not None and item["coverage"] < 95:
@@ -305,7 +336,8 @@ def run(env, data, clock, github, git, root=".", coverage_reader=None, emit=prin
     try:
         issues = github.issues()
         for key in sorted(alerts):
-            body = f"{key}\n{json.dumps(safe_counts(data), sort_keys=True)}\nRUNBOOK.md: {STEPS[key]}\n{mention(env)}"
+            rows = "".join(row + "\n" for row in coverage_rows) if key in ("SKIPS", "NO_FALL_QUESTIONS") else ""
+            body = f"{key}\n{json.dumps(safe_counts(data), sort_keys=True)}\n{rows}RUNBOOK.md: {STEPS[key]}\n{mention(env)}"
             sent = issue_once(github, "[BOT ALERT] " + key, body, "bot-alert", clock.now(), 24, issues)
             posted_p0 = posted_p0 or (sent and key in P0)
         issue_once(github, "Bot weekly status",
