@@ -60,6 +60,8 @@ jobs:
           LOOP_MINUTES: ${{ vars.LOOP_MINUTES }}
           POLL_MINUTES: ${{ vars.POLL_MINUTES }}
           MINIBENCH_MODE: ${{ vars.MINIBENCH_MODE }}
+          MODEL_PRESET: ${{ vars.MODEL_PRESET }}
+          PRESET_RESERVE_USD: ${{ vars.PRESET_RESERVE_USD }}
           SKIP_WITHOUT_RESEARCH: ${{ vars.SKIP_WITHOUT_RESEARCH }}
       - name: Ops
         if: always()
