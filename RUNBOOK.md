@@ -6,7 +6,7 @@ The bot starts off. Leave BOT_ENABLED unset or false until Test Bot passes and t
 
 ## Controls
 
-Repository Settings > Secrets and variables > Actions > Variables holds BOT_ENABLED, CHAIN_ENABLED, USE_OPENAI_BRIDGE, MINIBENCH_MODE, SKIP_WITHOUT_RESEARCH and ALERT_MENTION. Do not set REVIEW_BOT_ENABLED; its workflow is a disabled stub.
+Repository Settings > Secrets and variables > Actions > Variables holds BOT_ENABLED, CHAIN_ENABLED, USE_OPENAI_BRIDGE, MINIBENCH_MODE, MODEL_PRESET, PRESET_RESERVE_USD, SKIP_WITHOUT_RESEARCH and ALERT_MENTION. Do not set REVIEW_BOT_ENABLED; its workflow is a disabled stub.
 
 | Variable | Default | Effect |
 | --- | --- | --- |
@@ -14,6 +14,8 @@ Repository Settings > Secrets and variables > Actions > Variables holds BOT_ENAB
 | CHAIN_ENABLED | false | When true, a completed run queues the next run; requires BOT_ENABLED too. |
 | USE_OPENAI_BRIDGE | false | Permits an OpenAI key to cover season forecasts when OpenRouter is absent or exhausted. |
 | MINIBENCH_MODE | always | always attempts Tier C; slack reserves season credit first; off stops MiniBench. |
+| MODEL_PRESET | auto | auto keeps the existing pacer. A, B or C selects that season tier while the reserve check passes, including on urgent season questions. MiniBench, Test Bot and the optional bridge keep their existing rules. Blank is auto; surrounding spaces and letter case are normalized. An unknown value uses auto and raises PRESET_CONFIG_INVALID. |
+| PRESET_RESERVE_USD | 10 | Extra credit reserve for a season preset. The check is remaining credit minus pending reservations minus FLOOR_CREDIT >= this reserve plus the preset's tier cost. Below the threshold or with unknown credit, use the auto pacer. Blank is 10; invalid, negative or nonfinite values use 10 and raise PRESET_CONFIG_INVALID. |
 | SKIP_WITHOUT_RESEARCH | false | false permits an outside-view forecast labelled RESEARCH NONE; true skips it. |
 | LOOP_MINUTES | unset (45) | Positive run length up to 45 minutes; blank, invalid or out-of-range uses 45. |
 | POLL_MINUTES | unset (10) | Positive poll interval up to 10 minutes; blank, invalid or out-of-range uses 10. |
@@ -27,6 +29,7 @@ Every issue names its key. Check counts and skip reasons; do not inspect live fo
 
 | Alert key | What to do |
 | --- | --- |
+| PRESET_CONFIG_INVALID | Set MODEL_PRESET to auto, A, B or C; set PRESET_RESERVE_USD to a finite, nonnegative number or leave it unset for 10. The bot uses the documented defaults and continues. This is a P1 configuration alert; supplied text is never echoed. |
 | CREDITS_EXHAUSTED | **assume no more credit is coming**. Check whether you deliberately enabled the optional prepaid bridge. Submit another credit form yourself, in your own words. Otherwise leave forecasting stopped or arrange funding yourself. MiniBench top-ups and an open-source bonus are possible, not promised. |
 | GATE_BLOCKED | The bot refused to send a forecast it could not verify. If it repeats and no helper is available, set BOT_ENABLED=false. |
 | RUN_FAILED | If it repeats and no helper is available, set BOT_ENABLED=false. |
@@ -53,6 +56,8 @@ The weekly issue reports closed-question counts, coverage, missed IDs, remaining
 
 At the first authorized tournament run, look only for both TARGET lines and CREDIT, then counts/skip reasons. TARGET open=unknown means the count reader failed; it is not a claim that there are no questions. Never request a preview of a tournament forecast.
 
+At run end, expect exactly one PRESET line with the effective setting and season tiers selected. Examples: PRESET auto tier=C; PRESET A tier=A; PRESET A tier=A,C after the reserve forces an auto fallback. Multiple tiers are listed once each in sorted order, with no forecast values or reasoning. tier=none means no season tier was selected. Ordinary insufficient-credit handling is unchanged: the reserve itself never causes a skip, but truly exhausted credit still stops model calls. PRESET_CONFIG_INVALID reports only counters for invalid settings.
+
 The heartbeat checks repository age and, after 25 days without a commit, stages only .github/heartbeat.txt. The built-in token's effect on GitHub's inactivity timer is unverified. Make a manual browser edit to that file on November 20; November 28 is the backup date if missed.
 
 ## v1 and every crash fix
@@ -76,4 +81,4 @@ No AI-written messages to Metaculus or AskNews staff; the owner writes every mes
 
 Any future workflow that posts tournament forecasts must use concurrency group fbot-post-tournament. Test Bot keeps its separate group.
 
-For v0.2, upload the reviewed files to v1-test, run Test Bot there, and only after it passes upload those same files to main. Feature v1 still requires its separate GO. The comment header keeps schema version v0.1 and now includes each question ID.
+For v0.3, upload the reviewed files to v1-test, run Test Bot there, and only after it passes upload those same files to main. Feature v1 still requires its separate GO. The comment header keeps schema version v0.1 and includes each question ID. Set the two new controls under repository Variables, alongside BOT_ENABLED; they are not secrets. Leave MODEL_PRESET=auto to retain v0.2 pacing, or choose the desired preset and reserve before the next automated tournament run.

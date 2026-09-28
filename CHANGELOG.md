@@ -1,16 +1,22 @@
 # Changelog
 
-## 2026-09-27 - v0.2.3
+## 2026-09-27 - v0.3-r2
 
-R29: AskNews import fixed. The pinned asknews 0.13.45 wheel ships the module asknews_sdk, not asknews, so every research call failed before any request (found in the v0.3-r1 review). main.py now imports asknews_sdk, as the Metaculus template does. No other change.
+Astra's v0.3-r1 (MODEL_PRESET strong start, R24-R26) merged by Claude with the live v0.2.2-v0.2.4 fixes: R27 read-back retry on rate limits, R28 research error codes in logs, R29 AskNews import (asknews_sdk), R30 AskNews 429 backoff. No other change.
 
-## 2026-09-27 - v0.2.2
+## 2026-09-27 - v0.3 revision 1
 
-From the first live Test Bot runs (Claude, on the HP): R27 retries a read-back that hits a rate limit or loses its reply (2 s, then 4 s) before it counts as unknown, so a burst no longer skips a question; R28 adds a provider-free reason (exception class and HTTP status only) to each RESEARCH log line, to diagnose AskNews returning no articles. Tests added for both. No other change.
+Carry forward R24-R26 from v0.2.1 into v0.3 and every later version:
 
-## 2026-09-27 - v0.2.1
+- R24: return a single prediction unchanged from FBot._aggregate_predictions, preserving object identity and the validated numeric/discrete CDF. This bypasses the single-prediction re-standardization reported in forecasting-tools 0.2.92. Other list lengths still await the base aggregator. New adapter lines retain the GLUE (NOT EXECUTED offline) marker.
+- R25: transport() adds the default User-Agent `Sextant/0.2 (+https://github.com/devonmvfisher/metac-bot-template)` and preserves caller headers, including an explicit User-Agent override.
+- R26: construct FBot with enable_summarize_research=False.
 
-Go-live fixes from Claude's v0.2 review (REVIEW-A5-v0.2.md), applied by Claude on the HP to Astra's v0.2 so Sextant can go live before the season opens: R24 posts the registered prediction as-is when there is one prediction (the SDK re-aggregation re-standardized numeric and discrete CDFs and the post gate blocked every one); R25 sends a Sextant User-Agent on fbot's own HTTP reads; R26 turns off the unused SDK research summarizer. Tests: 129 unit tests, 24/24 mutations. No other change. Astra folds R24-R26 into v0.3.
+Add regression tests and mutations for all three fixes. The v0.3 preset controls are unchanged. Live SDK integration remains NOT EXECUTED; adapter checks use fake external imports.
+
+## 2026-09-27 - v0.3
+
+Add MODEL_PRESET (auto/A/B/C) and PRESET_RESERVE_USD (default 10) as repository variables. Season-only overrides respect pending reservations, FLOOR_CREDIT and the selected tier cost, then fall back to the unchanged auto pacer. MiniBench is unchanged. Add a sanitized configuration alert and one PRESET line per run, with offline tests and mutations. No other forecasting or workflow behavior changed.
 
 ## 2026-09-27 - v0.2
 
