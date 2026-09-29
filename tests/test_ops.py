@@ -121,6 +121,7 @@ class OpsTests(unittest.TestCase):
         self.run_ops(coverage=empty)
         self.assertNotIn("NO_FALL_QUESTIONS", json.dumps(self.github.writes))
         self.clock = FakeClock("2026-10-13T00:00:00Z")
+        self.github = FakeGitHub(self.clock.now())  # L2: this independent case must be due for weekly coverage.
         self.run_ops(coverage=empty)
         self.assertIn("NO_FALL_QUESTIONS", json.dumps(self.github.writes))
 

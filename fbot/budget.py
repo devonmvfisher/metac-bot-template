@@ -3,7 +3,8 @@ import threading
 import logging
 import math
 from . import SkipQuestion
-from .config import COSTS, FLOOR_CREDIT, enabled
+from .config import COSTS, TIERS, FLOOR_CREDIT, enabled
+from . import keys
 from .targets import utc
 
 
@@ -38,7 +39,8 @@ def normalize_mode(mode):
     return mode
 
 
-def choose(now, remaining, target, mode="always"):
+def choose(now, remaining, target, mode="always", costs=None):
+    costs = COSTS if costs is None else costs
     mode = normalize_mode(mode)
     season = remaining_season(now)
     if remaining is None:
@@ -46,15 +48,17 @@ def choose(now, remaining, target, mode="always"):
             raise SkipQuestion("BUDGET_MINIBENCH")
         return "C"
     spendable = remaining - FLOOR_CREDIT
-    if spendable < COSTS["C"] - 1e-9:
+    if spendable < costs["C"] - 1e-9:
+        if spendable >= costs["M"] - 1e-9:
+            return "M"
         raise SkipQuestion("EXHAUSTED")
-    allowed = mode == "always" or (mode == "slack" and spendable >= COSTS["B"] * season + COSTS["C"] * 60)
+    allowed = mode == "always" or (mode == "slack" and spendable >= costs["B"] * season + costs["C"] * 60)
     if target == "minibench":
         if not allowed:
-            raise SkipQuestion("BUDGET_MINIBENCH")
+            return "M"
         return "C"
-    allowance = (spendable - (COSTS["C"] * 60 if allowed else 0)) / max(season, 1)
-    return next((tier for tier in ("A", "B", "C") if COSTS[tier] <= allowance), "C")
+    allowance = (spendable - (costs["C"] * 60 if allowed else 0)) / max(season, 1)
+    return next((tier for tier, spec in TIERS.items() if not spec.get("fast") and not spec.get("bridge") and costs[tier] <= allowance), "C")
 
 
 def configure_preset(env, state):
@@ -93,7 +97,22 @@ class Pacer:
         self.remaining = None
         self.reserved = 0
         self.refreshed = False
+        self.balances = {}
+        self.pending = {}
+        self.reservations = {}
+        self.allocations = {}
+        self.own_mode = getattr(client, "own_mode", "off")
         configure_preset(env, state)
+
+    def costs(self):
+        book = self.state.book
+        if book is None or not book.available:
+            return COSTS.copy()
+        try:
+            return {tier: book.pacer_cost(tier, cost, self.clock.now()) or cost for tier, cost in COSTS.items()}
+        except Exception:
+            self.state.without_modules.add("ledger")
+            return COSTS.copy()
 
     def refresh(self):
         from . import CreditExhausted
@@ -103,7 +122,14 @@ class Pacer:
             except CreditExhausted:
                 remaining, limit = 0, None
             self.remaining = remaining
-            self.reserved = 0
+            self.state.credit_source = getattr(self.client, 'credit_source', 'unknown')
+            self.balances["router"] = remaining
+            if self.own_mode != "off" and self.env.get("OPENROUTER_API_KEY_OWN"):
+                try:
+                    self.balances["own"] = self.client.key("own")[0]
+                except CreditExhausted:
+                    self.balances["own"] = 0
+                self.state.credit_own = self.balances["own"]
             if not self.refreshed:
                 self.state.credit_before = remaining
             self.refreshed = True
@@ -115,9 +141,12 @@ class Pacer:
                     self.state.alert("CREDITS_LOW")
             return remaining, limit
 
-    def tier(self, question, forced_c=False):
+    def tier(self, question, forced_c=False, fast=False):
         with self.lock:
-            router = bool(self.env.get("OPENROUTER_API_KEY")) and "router" not in self.client.exhausted
+            costs = self.costs()
+            self.client.credit_costs = costs
+            choices = keys.order(self.env, self.own_mode, self.client.exhausted, question.target, self.balances, costs["M"], costs['C'])
+            router = bool(choices)
             if not router:
                 bridge = enabled(self.env, "USE_OPENAI_BRIDGE") and self.env.get("OPENAI_API_KEY")
                 if bridge and "bridge" not in self.client.exhausted:
@@ -127,26 +156,93 @@ class Pacer:
                         with self.state.lock:
                             self.state.preset_tiers.add("BRIDGE")
                     return "BRIDGE"
-                exhausted = bool(self.client.exhausted)
-                self.state.alert("CREDITS_EXHAUSTED" if exhausted else "NO_LLM_KEY")
+                exhausted = bool(self.client.exhausted) or bool(keys.enabled_keys(self.env, self.own_mode))
+                if exhausted:
+                    self.exhaustion_alert(costs)
+                else:
+                    self.state.alert("NO_LLM_KEY")
                 raise SkipQuestion("EXHAUSTED" if exhausted else "NO_LLM_KEY")
-            credit = None if self.remaining is None else self.remaining - self.reserved
+            eligible = keys.order(self.env, self.own_mode, self.client.exhausted, question.target, self.balances, costs["C"], costs['C'])
+            available = {name: None if value is None else value - self.reservations.get(name, 0) for name, value in self.balances.items()}
+            balances = [available.get(provider) for provider in (eligible or choices)]
+            # Each key retains its own floor when the pacer combines credit.
+            credit = None if any(value is None for value in balances) else sum(max(0, value - FLOOR_CREDIT) for value in balances) + FLOOR_CREDIT
             try:
                 tier = choose(self.clock.now(), credit, question.target,
-                              self.env.get("MINIBENCH_MODE") or "always")
+                              self.env.get("MINIBENCH_MODE") or "always", costs)
             except SkipQuestion as skip:
                 if skip.reason == "EXHAUSTED":
-                    self.state.alert("CREDITS_EXHAUSTED")
+                    self.exhaustion_alert(costs)
                 raise
             if forced_c:
                 tier = "C"
+            if not eligible and not forced_c:
+                tier = "M"
             preset = self.state.model_preset
             if (question.target == "season" and preset in ("A", "B", "C") and credit is not None
-                    and credit - FLOOR_CREDIT >= self.state.preset_reserve_usd + COSTS[preset]):
+                    and credit - FLOOR_CREDIT >= self.state.preset_reserve_usd + costs[preset]):
                 tier = preset
-            self.reserved += COSTS[tier]
+            if question.target == "test" and preset in ("A", "B", "C"):
+                tier = preset
+            if fast:
+                tier = "M"
+            self.reserve(question.qid, costs[tier], choices if tier == 'M' else eligible or choices)
             self.state.tiers[tier] += 1
+            self.state.tiers_by_target[question.target][tier] += 1
             if question.target == "season":
                 with self.state.lock:
                     self.state.preset_tiers.add(tier)
             return tier
+
+    def exhaustion_alert(self, costs):
+        enabled_keys = keys.enabled_keys(self.env, self.own_mode)
+        spent = {name for name in enabled_keys if name in self.client.exhausted or
+                 (self.balances.get(name) is not None and self.balances[name] - FLOOR_CREDIT - self.reserved < costs["M"] - 1e-9)}
+        if enabled_keys and enabled_keys <= spent:
+            self.state.alert("CREDITS_EXHAUSTED")
+
+    def measure_start(self):
+        self.refresh()
+        return dict(self.balances)
+
+    def release(self, qid):
+        with self.lock:
+            self.reserved = max(0, self.reserved - self.pending.pop(qid, 0))
+            for provider, amount in self.allocations.pop(qid, {}).items():
+                self.reservations[provider] = max(0, self.reservations.get(provider, 0) - amount)
+
+    def reserve(self, qid, amount, providers):
+        self.reserved += amount
+        self.pending[qid] = self.pending.get(qid, 0) + amount
+        allocations = self.allocations.setdefault(qid, {})
+        for index, provider in enumerate(providers):
+            balance = self.balances.get(provider)
+            capacity = amount if balance is None or index == len(providers) - 1 else max(0, balance - FLOOR_CREDIT - self.reservations.get(provider, 0))
+            part = min(amount, capacity)
+            allocations[provider] = allocations.get(provider, 0) + part
+            self.reservations[provider] = self.reservations.get(provider, 0) + part
+            amount -= part
+
+    def reserve_web(self, question, urgent=False):
+        if question.target != 'season' or urgent:
+            return False
+        with self.lock:
+            amount = self.state.remember('measured_cost', 'RESEARCH2', self.clock.now())
+            amount = 0.05 if amount is None else amount
+            remaining = self.balances.get('router')
+            if ('router' in self.client.exhausted or remaining is None
+                    or remaining - self.reserved - FLOOR_CREDIT < self.state.preset_reserve_usd + amount):
+                return False
+            self.reserve(question.qid, amount, ['router'])
+            return True
+
+    def measure_end(self, question, tier, before):
+        with self.lock:
+            self.refresh()
+            deltas = [max(0, value - self.balances[name]) for name, value in before.items()
+                      if value is not None and self.balances.get(name) is not None]
+            if deltas and len(deltas) == len(before):
+                spend = sum(deltas)
+                self.state.remember("record_spend", tier, spend, self.clock.now())
+                logging.getLogger("fbot").info("SPEND tier=%s per_q=%.6f", tier, spend)
+            self.release(question.qid)

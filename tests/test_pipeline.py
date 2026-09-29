@@ -18,27 +18,30 @@ from .fakes import FakeAskNews, FakeMetaculus, deps_for, fixture, fixture_prepar
 
 class PipelineTests(unittest.TestCase):
     def test_all_fail_no_post_or_comment(self):
-        q, _ = fixture("binary_long")
-        deps = deps_for({})
-        api = FakeMetaculus(deps.state)
-        with self.assertRaisesRegex(SkipQuestion, "ALL_MODELS_FAILED"):
-            api.submit(q, forecast(q, Research(), "A", deps))
-        self.assertEqual(api.requests, [])
+        # v1-r3 F09: no reply at all (status 0, the fake default) is MODEL_TRANSIENT; a 404 on every slot is not.
+        for scripts, reason in (({}, "MODEL_TRANSIENT"),
+                                ({slot[0]: ModelFailure(404) for slot in (OPUS, SOL, FLASH)}, "ALL_MODELS_FAILED")):
+            q, _ = fixture("binary_long")
+            deps = deps_for(scripts)
+            api = FakeMetaculus(deps.state)
+            with self.assertRaisesRegex(SkipQuestion, reason):
+                api.submit(q, forecast(q, Research(), "A", deps))
+            self.assertEqual(api.requests, [])
 
     def test_two_of_three(self):
         q, _ = fixture("binary_long")
         deps = deps_for({OPUS[0]: narration("Probability: 20%"), SOL[0]: ModelFailure(), FLASH[0]: narration("Probability: 90%")})
         result = forecast(q, Research(), "A", deps)
-        self.assertAlmostEqual(result.value, aggregate.combine("binary", [.2, .9]))
-        self.assertIn("2/3 ok", result.summary)
-        self.assertIn("run2:failed", result.summary)
+        self.assertAlmostEqual(result.value, .2)
+        self.assertIn("3/5 ok", result.summary)
+        self.assertIn("run3:failed", result.summary)
 
     def test_500_seeded_mixed_trials(self):
         rng = random.Random(50519)
         names = ("binary_long", "mc_three", "numeric_closed")
         for trial in range(500):
             q, data = fixture(names[trial % 3])
-            scripts, valid = {}, []
+            scripts, valid, weights = {}, [], []
             for slot in (OPUS, SOL, FLASH):
                 kind = rng.randrange(3)
                 if kind == 0:
@@ -56,7 +59,9 @@ class PipelineTests(unittest.TestCase):
                         shift = rng.uniform(-2, 2)
                         text = "\n".join(f"Percentile {p}: {p + shift}" for p in PERCENTILES)
                     scripts[slot[0]] = narration(text)
-                    valid.append(parse.parse(q, text))
+                    repetitions, weight = (1, 1) if slot == FLASH else (2, 2)
+                    valid.extend([parse.parse(q, text)] * repetitions)
+                    weights.extend([weight] * repetitions)
             deps = deps_for(scripts, fixture_prepare(data))
             api = FakeMetaculus(deps.state)
             if not valid:
@@ -65,7 +70,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertFalse(api.requests)
             else:
                 result = forecast(q, Research(), "A", deps)
-                expected = aggregate.combine(q.kind, valid, q.options)
+                expected = aggregate.combine(q.kind, valid, q.options, weights)
                 if q.kind == "multiple_choice":
                     expected = validate.repair(expected)
                 self.assertEqual(result.value, expected)
@@ -129,12 +134,12 @@ class PipelineTests(unittest.TestCase):
         deps = deps_for({OPUS[0]: bad, SOL[0]: bad, FLASH[0]: bad})
         with self.assertRaisesRegex(SkipQuestion, "MISREAD_ALL"):
             forecast(q, Research(), "A", deps)
-        self.assertEqual(len(deps.client.calls), 4)
+        self.assertEqual(len(deps.client.calls), 8)
         self.assertIn("WARNING", deps.client.calls[-1][1])
         calls = [0]
         def second_good(prompt):
             calls[0] += 1
-            return bad if calls[0] == 1 else narration("Probability: 37%")
+            return bad if calls[0] <= 2 else narration("Probability: 37%")
         deps = deps_for({OPUS[0]: bad, SOL[0]: second_good, FLASH[0]: bad})
         result = forecast(q, Research(), "A", deps)
         self.assertIn("RETRY", result.summary)
@@ -174,7 +179,7 @@ class PipelineTests(unittest.TestCase):
         self.assertFalse(calls)
         deps.client.values[SOL[0]] = "malformed"
         self.assertAlmostEqual(forecast(q, Research(), "C", deps).value, .42)
-        self.assertEqual(calls, ["malformed"])
+        self.assertEqual(calls, ["malformed", "malformed"])
 
     def test_prompt_sections_no_blend_and_hygiene(self):
         q, data = fixture("binary_long")
@@ -185,7 +190,8 @@ class PipelineTests(unittest.TestCase):
         self.assertLess(prompt.index("OUTSIDE VIEW:"), prompt.index("INSIDE VIEW:"))
         self.assertLess(prompt.index("INSIDE VIEW:"), prompt.index("FINAL:"))
         self.assertNotIn("bayes", prompt.lower())
-        self.assertNotIn("x" * 12001, prompt)
+        self.assertNotIn("x" * 25001, prompt)
+        self.assertIn("x" * 14000, prompt)
         values = []
         for base in ("1%", "99%"):
             deps.client.values[SOL[0]] = data["model_text"].replace("20%", base)
@@ -235,10 +241,9 @@ class PipelineTests(unittest.TestCase):
         service = Service(env, deps.state, failed)
         self.assertFalse(service.get(q).available)
         self.assertEqual(len(failed.calls), 2)
-        self.assertIn("RESEARCH_UNAVAILABLE", deps.state.alerts)
+        self.assertNotIn("RESEARCH_UNAVAILABLE", deps.state.alerts)
         skipped = Service({"SKIP_WITHOUT_RESEARCH": "true"}, deps.state)
-        with self.assertRaisesRegex(SkipQuestion, "NO_RESEARCH"):
-            skipped.get(q)
+        self.assertFalse(skipped.get(q).available)
 
     def test_research_threshold(self):
         q, _ = fixture("binary_long")

@@ -1,0 +1,21 @@
+{
+  "_source": "SYNTHETIC. Invented offline test data in the v0 fixture format; no live question is represented. Twin of numeric_share_0_100: the same question on a 0 to 1 scale.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "question": {
+    "target": "season",
+    "background": "Invented offline test data.",
+    "fine_print": "No live question is represented.",
+    "close_time": "2026-10-05T17:00:00Z",
+    "resolve_time": "2026-12-31T00:00:00Z",
+    "qid": 7121,
+    "post_id": 9121,
+    "kind": "numeric",
+    "title": "What share of the vote will the synthetic party receive in the fictional election?",
+    "resolution": "Resolves to the vote share in the fictional official results.",
+    "lower": 0,
+    "upper": 1,
+    "open_lower": false,
+    "open_upper": false,
+    "unit": "fraction of votes"
+  }
+}

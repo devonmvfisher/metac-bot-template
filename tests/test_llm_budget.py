@@ -25,7 +25,7 @@ class ClientBudgetTests(unittest.TestCase):
         key = "FAKEKEY123"
         self.assertEqual(headers["Authorization"], 'Bearer ' + key)
         self.assertEqual(body, {"model": SOL[0], "messages": [{"role": "user", "content": "question"}],
-                                "reasoning": {"effort": "high"}, "max_tokens": 32000})
+                                "reasoning": {"effort": "high"}, "max_tokens": 32000, "usage": {"include": True}})
         client.one(BRIDGE[0], "question", bridge=True)
         self.assertEqual(fake.calls[-1][1], DIRECT)
         self.assertEqual(fake.calls[-1][3]["max_completion_tokens"], 32000)
@@ -105,9 +105,11 @@ class ClientBudgetTests(unittest.TestCase):
     def test_key_reads_nested_remaining(self):
         for value in (100, 5, 1.5, None):
             client = self.setup_client(FakeKey(value))
-            self.assertEqual(client.key(), (value, 100))
+            self.assertEqual(client.key(), (value, 100) if value is not None else (None, None))
         fake = FakeLLM({"key": [(200, {"limit_remaining": 100, "data": {"usage": 4}})]})
         self.assertEqual(self.setup_client(fake).key(), (None, None))
+        fake = FakeLLM({"key": [(200, {"limit_remaining": 100, "data": {"usage": 4}})]})
+        self.assertEqual(self.setup_client(fake, {"OPENROUTER_API_KEY":"FAKEKEY123", "BUDGET_CAP_USD":"80"}).key(), (76,80))
         fake = FakeLLM({"key": [(402, {"error": {"metadata": {"limit_source": "FAKEKEY123"}}})]})
         with self.assertLogs("fbot", level="INFO") as logs:
             with self.assertRaises(CreditExhausted):
@@ -116,10 +118,10 @@ class ClientBudgetTests(unittest.TestCase):
 
     def test_scenario_table(self):
         cases = [(100, "2026-10-01", "always", "C", "C"),
-                 (100, "2026-10-01", "slack", "C", None),
-                 (400, "2026-10-01", "slack", "B", "C"),
+                 (100, "2026-10-01", "slack", "C", "M"),
+                 (400, "2026-10-01", "slack", "C", "M"),
                  (1000, "2026-10-01", "slack", "A", "C"),
-                 (100, "2026-10-01", "off", "C", None),
+                 (100, "2026-10-01", "off", "C", "M"),
                  (1.5, "2026-10-01", "always", None, None),
                  (100, "2026-12-20", "slack", "A", "C"),
                  (None, "2026-10-01", "slack", "C", None),

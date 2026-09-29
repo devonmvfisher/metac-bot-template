@@ -1,0 +1,29 @@
+{
+  "_source": "SYNTHETIC. Invented offline test data in the v0 fixture format; no live question is represented.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "question": {
+    "target": "season",
+    "background": "Invented offline test data.",
+    "fine_print": "No live question is represented.",
+    "close_time": "2026-10-05T17:00:00Z",
+    "resolve_time": "2026-12-31T00:00:00Z",
+    "qid": 7111,
+    "post_id": 9111,
+    "kind": "multiple_choice",
+    "title": "How many storms will the fictional weather office name in October 2026?",
+    "resolution": "Resolves to the count in the fictional office's end-of-month bulletin.",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10 or more"
+    ]
+  }
+}

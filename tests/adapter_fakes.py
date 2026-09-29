@@ -37,6 +37,11 @@ def load_adapter():
     module = importlib.util.module_from_spec(spec)
     with patch.dict(sys.modules, forecasting_tools=sdk, bot_helpers=helpers):
         spec.loader.exec_module(module)
+    from fbot import research2, sources, markets
+    from .fakes import FakeLLM
+    module.WebResearch = lambda env, clock, **kw: research2.WebResearch(env, clock, send=FakeLLM(), **kw)
+    module.SourcesReader = lambda env, clock, **kw: sources.Reader(env, clock, resolve=lambda *a: [], **kw)
+    module.Markets = lambda env, clock, **kw: markets.Markets(env, clock, get_json=lambda *a: (200, []), **kw)
     return module, sdk
 
 
@@ -59,7 +64,7 @@ def bot_for(module, loop=None, value=None, test=False):
     state = RunState(clock)
     client = TextClient({SOL[0]: narration("Probability: 37%") if value is None else value})
     bot = module.FBot()
-    bot.setup({}, state, client, SimpleNamespace(tier=lambda *a, **k: "C"),
+    bot.setup({"NUMERIC_V1": "false"}, state, client, SimpleNamespace(tier=lambda *a, **k: "C", measure_start=lambda: {}, measure_end=lambda *a: None),
               SimpleNamespace(get=lambda *a: Research()), Gate(state, readback=lambda *a: False),
               test=test, main_loop=loop)
     return bot

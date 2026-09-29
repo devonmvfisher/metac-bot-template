@@ -7,7 +7,7 @@ NUMBER = r"[+-]?(?:\d[\d,]*(?:\.\d*)?|\.\d+)"
 
 
 def final_text(text):
-    sections = re.split(r"(?im)^\s*FINAL\s*:?\s*", text)
+    sections = re.split(r"(?im)^[ \t]*FINAL[ \t]*:?[ \t]*", text)
     return sections[-1].strip()
 
 
@@ -24,7 +24,7 @@ def probability(text):
 
 
 def number(text, unit=""):
-    match = re.fullmatch(r"\s*[$£€]?\s*(" + NUMBER + r")\s*(thousand|million|billion|[KMB])?\s*", text, re.I)
+    match = re.fullmatch(r"\s*[$\u00a3\u20ac]?\s*(" + NUMBER + r")\s*(thousand|million|billion|[KMB])?\s*", text, re.I)
     if not match:
         raise ValueError("numeric format")
     value = float(match[1].replace(",", ""))
@@ -47,6 +47,19 @@ def number(text, unit=""):
 
 def label(text):
     return " ".join(text.split()).casefold()
+
+
+def legacy_numeric(question, text):
+    """Six-level fallback when the optional numeric module itself fails."""
+    lines = []
+    for line in final_text(text).splitlines():
+        line = ' '.join(line.split())
+        if len(line) > 300:
+            continue
+        match = re.fullmatch(r'(?:Percentile|P)\s*(\d+(?:\.\d+)?)\s*:\s*(.+)', line, re.I)
+        if match and float(match[1]) in PERCENTILES:
+            lines.append(f'Percentile {int(float(match[1]))}: {match[2]}')
+    return parse(question, '\n'.join(lines))
 
 
 def base_rate(text):
@@ -74,6 +87,11 @@ def parse(question, text):
                 continue
             name, sep, amount = line.rpartition(":")
             key = wanted.get(label(name))
+            if key is None:
+                name = re.sub(r"^\s*[-*\u2022][ \t]+", "", name).strip()
+                if name.startswith('**') and name.endswith('**'):
+                    name = name[2:-2]
+                key = wanted.get(label(name))
             if not sep or key is None or key in result:
                 raise ValueError("unknown or duplicate option")
             result[key] = probability(amount)

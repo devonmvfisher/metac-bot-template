@@ -58,11 +58,11 @@ class ReleaseTests(unittest.TestCase):
 
     def test_workflow_structure_and_secrets(self):
         paths = {p.name: p.read_text() for p in (ROOT / ".github/workflows").glob("*")}
-        self.assertEqual(set(paths), {"run_bot_on_tournament.yaml", "test_bot.yaml", "run_bot_on_metaculus_cup.yaml", "review_bot.yaml"})
+        self.assertEqual(set(paths), {"run_bot_on_tournament.yaml", "test_bot.yaml", "run_bot_on_metaculus_cup.yaml", "review_bot.yaml", "run_bot_on_timer.yaml"})
         for name, text in paths.items():
             self.assertIn("workflow_dispatch", text)
             self.assertIn("cancel-in-progress: false", text)
-            if name not in ("test_bot.yaml", "run_bot_on_tournament.yaml"):
+            if name not in ("test_bot.yaml", "run_bot_on_tournament.yaml", "run_bot_on_timer.yaml"):
                 self.assertNotIn("schedule:", text)
                 self.assertIn('echo "disabled"', text)
                 self.assertNotIn("secrets.", text)
@@ -76,7 +76,7 @@ class ReleaseTests(unittest.TestCase):
             for forbidden in ("checkout@v4", "setup-python@v5", "upload-artifact@v4", "snok/install-poetry@v1"):
                 self.assertNotIn(forbidden, text)
             names = set(re.findall(r"secrets\.([A-Z_]+)", text))
-            self.assertEqual(names, {"METACULUS_TOKEN", "OPENROUTER_API_KEY", "OPENAI_API_KEY", "ASKNEWS_CLIENT_ID", "ASKNEWS_SECRET", "ASKNEWS_API_KEY"})
+            self.assertEqual(names, {"METACULUS_TOKEN", "OPENROUTER_API_KEY", "OPENROUTER_API_KEY_OWN", "OPENAI_API_KEY", "ASKNEWS_CLIENT_ID", "ASKNEWS_SECRET", "ASKNEWS_API_KEY"})
         tournament, test = paths["run_bot_on_tournament.yaml"], paths["test_bot.yaml"]
         self.assertIn('cron: "11,31,51 * * * *"', tournament)
         self.assertNotIn("schedule:", test)

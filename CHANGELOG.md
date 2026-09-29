@@ -1,12 +1,26 @@
 # Changelog
 
-## 2026-09-27 - v0.3-r3
+## 2026-09-28 - v1-r3
 
-R31 fixes the open-question counter and the coverage reader. The site's post list never marks a last page (its "next" link is never null), so before R31 both readers kept reading past the last page to the page cap and ended unknown; now each stops on an empty page or a page shorter than the limit it asked for, under the same cap. The coverage reader asks for our own forecasts (with_cp=true), so it can tell answered questions from missed ones; a question that comes back without them makes that target's coverage unknown, not all missed. Both readers use the site's include_descriptions name (include_description was ignored). Group sub-questions are counted; sub-questions still upcoming or open are skipped; a question repeated across pages counts once; closes before launch (Sep 28 00:00 UTC) are not counted. A failed read logs its reason as an HTTP status or error class (TARGET open=unknown:403, COVERAGE target=minibench unknown reason=403); POLL_FAILING still fires when both counts are unknown. After each run, Ops logs one COVERAGE line per target with closed, forecasted and missed question IDs, and the SKIPS and NO_FALL_QUESTIONS alerts carry those COVERAGE lines. Filter keys are sent repeated, as the SDK sends them; that is a request-shape change, not a fix. No other change.
+Terms rebuild. Every request the bot's own code makes (market APIs, robots.txt, resolution pages, model calls, Metaculus reads and posts, GitHub) now sends the User-Agent SextantBot/1.0 with the repository URL as the contact; it replaces the R25 Sextant/0.2 default. Requests made inside the forecasting-tools and AskNews SDKs keep their library User-Agent. No module may fetch kalshi.com, stlouisfed.org or unhcr.org: the shared reader refuses them on every redirect hop, before any address lookup. The resolution-page reader reads cleared hosts only (federalreserve.gov, bls.gov), always skips metaculus.com, kalshi.com, polymarket.com, manifold.markets, stlouisfed.org and unhcr.org, and refuses a redirect or robots.txt that leaves a cleared host. Kalshi is removed from the market reader. Polymarket and Manifold are each off unless their own repository variable (POLYMARKET_ENABLED, MANIFOLD_ENABLED) is true; MARKETS_ENABLED stays the master switch, and the three bot workflows pass both variables. Third-party test fixtures are now synthetic, except the BLS and Federal Reserve Board pages, which carry a source credit (one third-party script in the Board page is replaced with a synthetic one). F09: when every model fails with no reply, 408, 429 or a 5xx, the skip reason is MODEL_TRANSIENT; the question is still capped for the rest of that run, but it stays out of the 2-day failure memory, and after 3 such runs within 3 hours it sits out until 3 hours after the last one. Every other failure keeps the 2-day memory. main.py is unchanged.
+
+## 2026-09-28 - v1-r2
+
+The credit read keeps the last known balance while it waits for the key endpoint, so a model call made during the read still sees that balance and does not pick a nearly empty key; a failed read keeps the last known balance and marks its source unknown. The coverage reader carries forward the live v0.3-r3 R31 fix: it asks for our own forecasts (with_cp=true), so closed questions count as forecasted or forfeited instead of unknown; sub-questions still upcoming or open are skipped; closes before the season start (2026-09-28 00:00 UTC) are not counted. The v1-r1 note moves to its own heading. No other change.
+
+## 2026-09-28 - v1-r1
+
+2026-09-28 v1-r1: the deadline-rule and two numeric-shape test fixtures are now fully synthetic; new BUDGET_CAP_USD and BUDGET_CAP_OWN_USD settings let the credit pacer work when a key has no credit limit (alert BUDGET_CAP_INVALID); Ops prints one counts-only SEXTANT_VITALS v1 notice per run. EDGE-2 switches stay off.
+
+## 2026-09-28 - v1
+
+Built from live v0.3-r2. L1-L5 repair dispatch, counting/read-back, AskNews spacing and repeated paid post failures. M1-M3 integrate the reviewed operations, numeric and research modules and their fixes. Items 1-2 add own-key modes, target isolation, a single tier table, repeated model runs, weighted aggregation, deadline combination, Flash floor and measured costs. H1-H9 add durable counts, validated season settings, Test Bot presets/costs, switch bindings, weekly reporting, rationale caps, season-end handling and release documentation. E1 ASKNEWS_PARITY/ASKNEWS_ARCHIVE and E2 DEADLINE_SHIFT are built with defaults off.
+
+R24-R26 remain from v0.2.1: single SDK prediction identity, the exact Sextant/0.2 User-Agent and disabled SDK research summarization. R27-R30 and the strict tournament double-post guards remain. SDK research_reports_per_question and predictions_per_research_report stay 1. Pins remain byte-identical with forecasting-tools 0.2.92. Live execution remains NOT EXECUTED offline.
 
 ## 2026-09-27 - v0.3-r2
 
-Astra's v0.3-r1 (MODEL_PRESET strong start, R24-R26) merged by Claude with the live v0.2.2-v0.2.4 fixes: R27 read-back retry on rate limits, R28 research error codes in logs, R29 AskNews import (asknews_sdk), R30 AskNews 429 backoff. No other change.
+The v0.3-r1 release (MODEL_PRESET strong start, R24-R26) merged with the live v0.2.2-v0.2.4 fixes: R27 read-back retry on rate limits, R28 research error codes in logs, R29 AskNews import (asknews_sdk), R30 AskNews 429 backoff. No other change.
 
 ## 2026-09-27 - v0.3 revision 1
 

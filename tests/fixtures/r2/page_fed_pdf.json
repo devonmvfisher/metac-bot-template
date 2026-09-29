@@ -1,0 +1,18 @@
+{
+ "kind": "page",
+ "label": "REAL HEADERS, FIRST 256 BYTES",
+ "source_url": "https://www.federalreserve.gov/monetarypolicy/files/monetary20250917a1.pdf",
+ "fetched_utc": "2026-09-27T19:17:10Z",
+ "method": "curl with a desktop-browser User-Agent from the packet writer's machine; no key, no sign-in; a Range request for the first 512 bytes only",
+ "method_note": "2026-09-28: fetching with a browser User-Agent was a mistake and has stopped; the runtime identifies itself as SextantBot.",
+ "attribution": "Source: Board of Governors of the Federal Reserve System, https://www.federalreserve.gov/monetarypolicy/files/monetary20250917a1.pdf, retrieved 2026-09-27. Public domain (https://www.federalreserve.gov/disclaimer.htm).",
+ "status": 200,
+ "headers": {
+  "Content-Type": "application/pdf"
+ },
+ "declared_length": 207980,
+ "original_bytes": 207980,
+ "trim_note": "Content-Type application/pdf, full size 207,980 bytes (from Content-Range). The reader must refuse it as a non-text type before reading the body.",
+ "provenance": "Written by Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+ "body_b64": "JVBERi0xLjYNJeLjz9MNCjEyMiAwIG9iag08PC9MaW5lYXJpemVkIDEvTCAyMDI3NzcvTyAxMjUvRSA5MTMxMy9OIDQvVCAyMDIzNTEvSCBbIDUwOCAyNDZdPj4NZW5kb2JqDSAgICAgICAgICAgICAgDQoxNDEgMCBvYmoNPDwvRGVjb2RlUGFybXM8PC9Db2x1bW5zIDUvUHJlZGljdG9yIDEyPj4vRmlsdGVyL0ZsYXRlRGVjb2RlL0lEWzwzNTU5NDgxMTg1Q0Q4NTRFODdCNDk3NEU5QTgwRkNBOT48RjU5ODZERjJCOUUzMjE0OUE2N0Q1NzYwNERCMTNBRg=="
+}

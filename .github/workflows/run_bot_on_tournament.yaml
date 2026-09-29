@@ -41,17 +41,29 @@ jobs:
         continue-on-error: true
         run: |
           for i in 1 2 3; do poetry install --no-interaction --no-root && exit 0; sleep 30; done; exit 1
+      - name: Restore ledger
+        uses: actions/cache/restore@v5
+        with:
+          path: fbot-ledger.json
+          key: fbot-ledger-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: fbot-ledger-
+      - name: Season check
+        id: season
+        run: python3 -m fbot.hardening --season-open >> "$GITHUB_OUTPUT"
+        env:
+          SEASON_END_UTC: ${{ vars.SEASON_END_UTC }}
       - name: Run bot
         id: run
         continue-on-error: true
         timeout-minutes: 58
-        if: steps.install.outcome == 'success' && vars.BOT_ENABLED == 'true'
+        if: steps.install.outcome == 'success' && vars.BOT_ENABLED == 'true' && steps.season.outputs.season_open != 'false'
         run: |
           export BOT_ENABLED=true
           poetry run python main.py --mode tournament --loop-minutes "${LOOP_MINUTES:-45}" --poll-minutes "${POLL_MINUTES:-10}"
         env:
           METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY_OWN: ${{ secrets.OPENROUTER_API_KEY_OWN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ASKNEWS_CLIENT_ID: ${{ secrets.ASKNEWS_CLIENT_ID }}
           ASKNEWS_SECRET: ${{ secrets.ASKNEWS_SECRET }}
@@ -63,6 +75,32 @@ jobs:
           MODEL_PRESET: ${{ vars.MODEL_PRESET }}
           PRESET_RESERVE_USD: ${{ vars.PRESET_RESERVE_USD }}
           SKIP_WITHOUT_RESEARCH: ${{ vars.SKIP_WITHOUT_RESEARCH }}
+          PROMPTS_V1: ${{ vars.PROMPTS_V1 }}
+          DAILY_PROBE: ${{ vars.DAILY_PROBE }}
+          CONCURRENT_TARGETS: ${{ vars.CONCURRENT_TARGETS }}
+          SEASON_END_UTC: ${{ vars.SEASON_END_UTC }}
+          OWN_KEY_MODE: ${{ vars.OWN_KEY_MODE }}
+          BUDGET_CAP_USD: ${{ vars.BUDGET_CAP_USD }}
+          BUDGET_CAP_OWN_USD: ${{ vars.BUDGET_CAP_OWN_USD }}
+          RESEARCH2_ENABLED: ${{ vars.RESEARCH2_ENABLED }}
+          MARKETS_ENABLED: ${{ vars.MARKETS_ENABLED }}
+          POLYMARKET_ENABLED: ${{ vars.POLYMARKET_ENABLED }}
+          MANIFOLD_ENABLED: ${{ vars.MANIFOLD_ENABLED }}
+          SOURCES_ENABLED: ${{ vars.SOURCES_ENABLED }}
+          NUMERIC_V1: ${{ vars.NUMERIC_V1 }}
+          CHAIN_ENABLED: ${{ vars.CHAIN_ENABLED }}
+          ASKNEWS_PARITY: ${{ vars.ASKNEWS_PARITY }}
+          ASKNEWS_ARCHIVE: ${{ vars.ASKNEWS_ARCHIVE }}
+          DEADLINE_SHIFT: ${{ vars.DEADLINE_SHIFT }}
+          SEASON_ID: ${{ vars.SEASON_ID }}
+          SEASON_SLUG: ${{ vars.SEASON_SLUG }}
+          ALLOW_NEW_SEASON: ${{ vars.ALLOW_NEW_SEASON }}
+      - name: Save ledger
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: fbot-ledger.json
+          key: fbot-ledger-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Ops
         if: always()
         run: python3 -m fbot.ops --after-run
@@ -71,7 +109,12 @@ jobs:
           ALERT_MENTION: ${{ vars.ALERT_MENTION }}
           METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY_OWN: ${{ secrets.OPENROUTER_API_KEY_OWN }}
           BOT_ENABLED: ${{ vars.BOT_ENABLED }}
           CHAIN_ENABLED: ${{ vars.CHAIN_ENABLED }}
           INSTALL_OUTCOME: ${{ steps.poetry.outcome == 'failure' && 'failure' || steps.install.outcome }}
           RUN_OUTCOME: ${{ steps.run.outcome }}
+          SEASON_ID: ${{ vars.SEASON_ID }}
+          SEASON_SLUG: ${{ vars.SEASON_SLUG }}
+          SEASON_END_UTC: ${{ vars.SEASON_END_UTC }}
+          ALLOW_NEW_SEASON: ${{ vars.ALLOW_NEW_SEASON }}

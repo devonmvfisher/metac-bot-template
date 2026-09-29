@@ -173,7 +173,7 @@ class ReviewTests(unittest.TestCase):
                         await bot.prediction(raw)
                     except SkipQuestion:
                         pass
-            self.assertEqual(len(bot.f_client.calls), expected)
+            self.assertEqual(len(bot.f_client.calls), expected * 4)
             self.assertTrue(any("reason=RETRY_CAPPED" in line for line in logs.output))
         asyncio.run(scenario())
 
@@ -249,14 +249,14 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual(failed.exception.status, 403)
 
     def test_R07_Tier_C_Sol_Flash38_Flash36_404_429(self):
-        self.assertEqual(config.SLOTS["C"], ((config.SOL + config.FLASH),))
-        self.assertEqual(config.FLASH, ("google/gemini-3.8-flash", "google/gemini-3.6-flash"))
+        self.assertEqual(config.SLOTS["C"], (config.SOL, config.FLASH, config.FLASH))
+        self.assertEqual(config.FLASH, ("google/gemini-3.8-flash", "google/gemini-3.6-flash") + config.SOL)
         for status in (404, 429):
-            fake = FakeLLM({model: [(status, {})] for model in config.SLOTS["C"][0][:-1]})
+            fake = FakeLLM({model: [(status, {})] for model in config.FLASH[:-1]})
             client = Client({"OPENROUTER_API_KEY": "FAKEKEY123"}, FakeClock(), lambda *a: None, fake)
-            _, model = client.slot(config.SLOTS["C"][0], "fixture")
-            self.assertEqual(model, config.FLASH[1])
-            self.assertEqual([call[3]["model"] for call in fake.calls], list(config.SOL + config.FLASH))
+            _, model = client.slot(config.FLASH, "fixture")
+            self.assertEqual(model, config.SOL[0])
+            self.assertEqual([call[3]["model"] for call in fake.calls], list(config.FLASH))
 
     def test_R08_parser_coroutine_uses_main_loop(self):
         module, sdk = load_adapter()
@@ -344,17 +344,17 @@ class ReviewTests(unittest.TestCase):
         self.assertFalse(gate.state.comment_failed)
 
     def test_R11_PROBE_list_matches_config(self):
-        self.assertEqual(config.PROBES, config.OPUS + config.SOL + config.FLASH + (config.CHEAP[1],))
+        self.assertEqual(config.PROBES, tuple(dict.fromkeys(config.OPUS + config.SOL + config.FLASH + (config.CHEAP[1],))))
         source = (ROOT / "main.py").read_text()
         self.assertIn("models = BRIDGE if direct else PROBES", source)
-        self.assertIn('http=%s readback=%s comment=%s', source)
+        self.assertIn('http=%s readback=%s comment=%s', (ROOT / "fbot/live.py").read_text())
 
     def execute_test(self, found):
         module, sdk = load_adapter()
         clock, state = FakeClock(), RunState(FakeClock())
         fake = FakeLLM()
         client = Client({"OPENROUTER_API_KEY": "FAKEKEY123"}, clock, state.alert, fake)
-        pacer = SimpleNamespace(refresh=lambda: (100, 100), tier=lambda *a, **k: "C")
+        pacer = SimpleNamespace(refresh=lambda: (100, 100), tier=lambda *a, **k: "C", measure_start=lambda: {}, measure_end=lambda *a: None, reserve_web=lambda *a: False)
         installed = []
         def install(gate):
             gate.readback = lambda *a: False
@@ -372,6 +372,7 @@ class ReviewTests(unittest.TestCase):
         with patch.object(module, "Client", return_value=client), patch.object(module, "Pacer", return_value=pacer), \
              patch.object(module, "Service", return_value=SimpleNamespace(get=lambda *a: Research())), \
              patch.object(module, "install_post_gate", side_effect=install), patch.object(module, "already_forecast", return_value=found), \
+             patch.object(module, "readback", return_value={8101: ("found" if found is True else "none" if found is False else "unknown", "ok")}), \
              patch.object(module.FBot, "forecast_on_tournament", new=poll, create=True), patch.object(state, "write"), \
              self.assertLogs("fbot", level="INFO") as logs:
             operation = module.execute(SimpleNamespace(mode="test_questions"), {"OPENROUTER_API_KEY": "FAKEKEY123"}, clock, state)

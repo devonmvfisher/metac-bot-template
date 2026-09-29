@@ -1,0 +1,16 @@
+{
+  "_source": "SYNTHETIC. Invented offline test data in the v0 fixture format; no live question is represented.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "question": {
+    "target": "season",
+    "background": "Invented offline test data.",
+    "fine_print": "No live question is represented.",
+    "close_time": "2026-10-05T17:00:00Z",
+    "resolve_time": "2026-12-31T00:00:00Z",
+    "qid": 7101,
+    "post_id": 9101,
+    "kind": "binary",
+    "title": "Will the synthetic agency publish its annual report before 2026-12-31?",
+    "resolution": "Resolves Yes if the fictional agency's report appears on its website before the stated date."
+  }
+}

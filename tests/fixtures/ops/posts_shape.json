@@ -1,0 +1,224 @@
+{
+  "_source": "SYNTHETIC, shaped from Metaculus's public code on main, read Sun Sep 27 2026: posts/serializers.py (PostFilterSerializer.Order includes scheduled_close_time; serialize_post adds question, conditional, group_of_questions and notebook) and questions/serializers/common.py (QuestionSerializer fields; my_forecasts = {history, latest, score_data}, present only for a signed-in reader; serialize_group puts sub-questions in group_of_questions.questions). Anonymous API calls now return HTTP 403 ('The API is only available to authenticated users'), so no live page was taken. Values are invented. The page's next link is never null on the site (posts/views.py uses utils/paginator.py CountlessLimitOffsetPagination, whose count is infinite), so this page carries one too.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "now": "2026-10-20T12:00:00Z",
+  "expected": {
+    "closed": 6,
+    "forecasted": 3,
+    "forfeited": 2,
+    "unknown": 1,
+    "forfeited_ids": [
+      80012,
+      80021
+    ],
+    "unknown_ids": [
+      80031
+    ],
+    "missed": [
+      80012,
+      80021
+    ],
+    "coverage": 60.0
+  },
+  "page": {
+    "next": "https://www.metaculus.com/api/posts/?limit=100&offset=100",
+    "results": [
+      {
+        "id": 90008,
+        "title": "Synthetic discrete, closed early",
+        "scheduled_close_time": "2026-10-25T00:00:00Z",
+        "question": {
+          "id": 80051,
+          "title": "Synthetic",
+          "type": "discrete",
+          "status": "closed",
+          "open_time": "2026-10-01T00:00:00Z",
+          "scheduled_close_time": "2026-10-25T00:00:00Z",
+          "actual_close_time": "2026-10-19T20:00:00Z",
+          "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+          "my_forecasts": {
+            "history": [],
+            "latest": {
+              "start_time": 1760000000.0,
+              "end_time": null,
+              "forecast_values": [
+                0.7,
+                0.3
+              ]
+            },
+            "score_data": {}
+          }
+        }
+      },
+      {
+        "id": 90001,
+        "title": "Synthetic binary",
+        "scheduled_close_time": "2026-10-19T10:00:00Z",
+        "question": {
+          "id": 80001,
+          "title": "Synthetic",
+          "type": "binary",
+          "status": "resolved",
+          "open_time": "2026-10-01T00:00:00Z",
+          "scheduled_close_time": "2026-10-19T10:00:00Z",
+          "actual_close_time": "2026-10-19T10:00:00Z",
+          "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+          "my_forecasts": {
+            "history": [],
+            "latest": {
+              "start_time": 1760000000.0,
+              "end_time": null,
+              "forecast_values": [
+                0.7,
+                0.3
+              ]
+            },
+            "score_data": {}
+          }
+        }
+      },
+      {
+        "id": 90002,
+        "title": "Synthetic group",
+        "scheduled_close_time": "2026-10-18T09:00:00Z",
+        "group_of_questions": {
+          "id": 3002,
+          "questions": [
+            {
+              "id": 80011,
+              "title": "Synthetic",
+              "type": "numeric",
+              "status": "closed",
+              "open_time": "2026-10-01T00:00:00Z",
+              "scheduled_close_time": "2026-10-18T09:00:00Z",
+              "actual_close_time": "2026-10-18T09:00:00Z",
+              "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+              "my_forecasts": {
+                "history": [],
+                "latest": {
+                  "start_time": 1760000000.0,
+                  "end_time": null,
+                  "forecast_values": [
+                    0.7,
+                    0.3
+                  ]
+                },
+                "score_data": {}
+              }
+            },
+            {
+              "id": 80012,
+              "title": "Synthetic",
+              "type": "numeric",
+              "status": "closed",
+              "open_time": "2026-10-01T00:00:00Z",
+              "scheduled_close_time": "2026-10-18T09:00:00Z",
+              "actual_close_time": "2026-10-18T09:00:00Z",
+              "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+              "my_forecasts": {
+                "history": [],
+                "latest": null,
+                "score_data": {}
+              }
+            },
+            {
+              "id": 80013,
+              "title": "Synthetic",
+              "type": "date",
+              "status": "closed",
+              "open_time": "2026-10-01T00:00:00Z",
+              "scheduled_close_time": "2026-10-18T09:00:00Z",
+              "actual_close_time": "2026-10-18T09:00:00Z",
+              "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+              "my_forecasts": {
+                "history": [],
+                "latest": null,
+                "score_data": {}
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": 90003,
+        "title": "Synthetic multiple choice",
+        "scheduled_close_time": "2026-10-17T08:00:00Z",
+        "question": {
+          "id": 80021,
+          "title": "Synthetic",
+          "type": "multiple_choice",
+          "status": "closed",
+          "open_time": "2026-10-01T00:00:00Z",
+          "scheduled_close_time": "2026-10-17T08:00:00Z",
+          "actual_close_time": "2026-10-17T08:00:00Z",
+          "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+          "my_forecasts": {
+            "history": [],
+            "latest": null,
+            "score_data": {}
+          }
+        }
+      },
+      {
+        "id": 90004,
+        "title": "Synthetic binary, read without a token",
+        "scheduled_close_time": "2026-10-16T08:00:00Z",
+        "question": {
+          "id": 80031,
+          "title": "Synthetic",
+          "type": "binary",
+          "status": "closed",
+          "open_time": "2026-10-01T00:00:00Z",
+          "scheduled_close_time": "2026-10-16T08:00:00Z",
+          "actual_close_time": "2026-10-16T08:00:00Z",
+          "scheduled_resolve_time": "2026-11-30T00:00:00Z"
+        }
+      },
+      {
+        "id": 90006,
+        "title": "Synthetic conditional",
+        "scheduled_close_time": "2026-10-15T00:00:00Z",
+        "conditional": {
+          "id": 3006,
+          "condition": {
+            "id": 80061
+          },
+          "question_yes": {
+            "id": 80062
+          },
+          "question_no": {
+            "id": 80063
+          }
+        }
+      },
+      {
+        "id": 90005,
+        "title": "Synthetic binary, closed 10 days ago",
+        "scheduled_close_time": "2026-10-10T00:00:00Z",
+        "question": {
+          "id": 80041,
+          "title": "Synthetic",
+          "type": "binary",
+          "status": "resolved",
+          "open_time": "2026-10-01T00:00:00Z",
+          "scheduled_close_time": "2026-10-10T00:00:00Z",
+          "actual_close_time": "2026-10-10T00:00:00Z",
+          "scheduled_resolve_time": "2026-11-30T00:00:00Z",
+          "my_forecasts": {
+            "history": [],
+            "latest": null,
+            "score_data": {}
+          }
+        }
+      },
+      {
+        "id": 90007,
+        "title": "Synthetic notebook",
+        "scheduled_close_time": "2026-10-01T00:00:00Z",
+        "notebook": {
+          "id": 3007
+        }
+      }
+    ]
+  }
+}

@@ -25,6 +25,7 @@ class Question:
     unit: str = ""
     close_time: datetime | None = None
     resolve_time: datetime | None = None
+    is_group: bool = False
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,8 @@ class Result:
     cdf: list | None = None
     prediction: object = None
     deadline: float | None = None
+    numeric_v1: bool = False
+    research_label: str | None = None
 
     @property
     def comment(self):

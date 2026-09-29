@@ -7,7 +7,8 @@ import unittest
 from fbot.config import SOL
 from fbot.pipeline import forecast, forecast_async
 from fbot.types import Research
-from fbot import ops
+from fbot import ops, pipeline
+from unittest.mock import patch
 from .fakes import FakeClock, FakeGit, FakeGitHub, FakeMetaculus, deps_for, fixture
 
 
@@ -49,7 +50,7 @@ class DeliveryTests(unittest.TestCase):
         q, data = fixture("binary_long")
         deps = deps_for({SOL[0]: data["model_text"]})
         lock, counts = threading.Lock(), {"active": 0, "peak": 0}
-        original = deps.client.slot
+        original = pipeline.forecast
         def tracked(*args, **kwargs):
             with lock:
                 counts["active"] += 1
@@ -60,10 +61,10 @@ class DeliveryTests(unittest.TestCase):
             finally:
                 with lock:
                     counts["active"] -= 1
-        deps.client.slot = tracked
         async def group():
             return await asyncio.gather(*(forecast_async(q, Research(), "C", deps) for _ in range(12)))
-        self.assertEqual(len(asyncio.run(group())), 12)
+        with patch.object(pipeline, "forecast", side_effect=tracked):
+            self.assertEqual(len(asyncio.run(group())), 12)
         self.assertLessEqual(counts["peak"], 5)
 
     def test_bridge_parser_receives_provider_tier(self):

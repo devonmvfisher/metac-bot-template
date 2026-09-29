@@ -1,0 +1,14 @@
+{
+  "_source": "The three benign sentences are the review's probe inputs (the v0 review probe results, probes.txt lines 3 to 5, Sun Sep 27 2026); v0's guard dropped all three. The misread sentences are synthetic.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "benign": [
+    "OUTSIDE VIEW: Such a recall has already happened in 2 of the last 10 years; base rate 20%.",
+    "INSIDE VIEW: The question has not already resolved; the vote is next week.",
+    "The market will be resolved YES only if the index closes above 5,000."
+  ],
+  "misread": [
+    "This question has already resolved YES, so the answer is certain.",
+    "The outcome is known: the bill passed last month.",
+    "Reports confirm this already occurred on October 1."
+  ]
+}

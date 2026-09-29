@@ -1,19 +1,33 @@
-# Forecast bot v0.3
+# Sextant v1
 
-This fork targets the Fall 2026 season and MiniBench with explicit model IDs, budget tiers, output checks, and private reasoning comments. Forecasting and the optional run chain are off by default. Follow RUNBOOK.md and the reviewed setup guide before enabling them.
+Sextant forecasts the configured season and MiniBench with shared budget reservations, validated outputs and private comments. Forecasting and chaining start disabled. Use [RUNBOOK.md](RUNBOOK.md) and [DEVON-GITHUB-STEPS.md](DEVON-GITHUB-STEPS.md) for the reviewed upload and Test Bot procedure.
 
-Repository Actions variables now support MODEL_PRESET and PRESET_RESERVE_USD. Leave MODEL_PRESET unset or set it to auto to keep the existing pacer. Set A, B or C to select that tier for season questions while available credit after pending reservations and FLOOR_CREDIT covers PRESET_RESERVE_USD plus the tier cost. PRESET_RESERVE_USD defaults to 10 dollars. Below that threshold, or when credit is unknown, the existing auto pacer takes over. MiniBench and Test Bot keep their existing rules; the optional bridge route is unchanged.
+MODEL_PRESET is auto/A/B/C; PRESET_RESERVE_USD defaults to 10. Season overrides require remaining credit after pending reservations and FLOOR_CREDIT to cover that reserve plus the tier cost. The auto pacer takes over below it. Questions closing within 12 minutes use M. MiniBench retains its auto budget rule plus the requested Flash floor.
 
-For example, with no pending reservations, preset A needs at least 14 dollars of remaining credit: the 2-dollar floor, 10-dollar reserve and 2-dollar Tier A reservation. An invalid preset uses auto and raises PRESET_CONFIG_INVALID without echoing the supplied text. An invalid reserve uses 10 and raises the same alert. Reserve values must be finite, nonnegative numbers. At run end, one line reports the effective preset and season tiers selected: PRESET A tier=A,C means the run selected A and later auto C; tier=none means no season tier was selected.
+| Tier | Runs | Config cost before safety | Reserved cost (x1.5) |
+| --- | --- | --- | --- |
+| A | Opus x2, Sol x2, Flash | 1.20 | 1.80 |
+| B | Opus, Sol, Flash x2 | 0.77 | 1.155 |
+| C | Sol, Flash x2; Sol x2 when Flash is down | 0.36 | 0.54 |
+| M | Flash x3, urgent or affordability floor | 0.24 | 0.36 |
 
-Offline tests use the Python standard library:
+Flash tries 3.8, then 3.6, then Sol. Binary runs combine by weighted log-odds median (Opus/Sol 2, Flash 1); categories use weighted means and the option floor; NUMERIC_V1 uses a pointwise CDF median. A single successful run gets the single-run clamp. At the combination deadline minus 120 seconds, finished runs can post and unfinished runs appear in DROPPED. The post gate still enforces close minus 60 seconds and the job end.
+
+After 20 measured questions in a tier, the ledger supplies a rolling seven-day cost with a conservative floor. Missing ledger data uses config costs. Concurrent before/after credit samples can include another question's spend; that can overestimate costs conservatively. Real provider accounting latency remains unverified.
+
+OWN_KEY_MODE defaults to off. insurance or primary can use OPENROUTER_API_KEY_OWN for season questions. MiniBench never uses that key. Weekly status includes both remaining balances. Web research always uses the sponsored key.
+
+The numeric, research, prompt, probe and concurrent-target switches default true; ASKNEWS_PARITY, ASKNEWS_ARCHIVE and DEADLINE_SHIFT default false pending EDGE-2 approval. All controls and alerts are in the runbook.
+
+Offline verification uses the standard library:
 
 ```text
 python -B tests/run_offline.py
-python -B tests/mutate.py --tmp <job-temp-folder> --out <mutation-report.json>
+python -B tests/mutate.py --tmp <job-temp-folder> --out <main-mutations.json>
+python -B tests/mutate_numeric.py --tmp <job-temp-folder> --out <numeric-mutations.json>
+python -B tests/mutate_r2.py --tmp <job-temp-folder> --out <research-mutations.json>
+python -B tests/mutate_ops.py --tmp <job-temp-folder> --out <ops-mutations.json>
 python -B -m tests.dry_run --output <fixture-report.md>
 ```
 
-Set TEMP and TMP to your job's temporary folder before running those commands. Tests deny external socket connections and subprocess execution; the mutation runner starts one guarded test process at a time. Windows asyncio's local wake-up socket pairs are permitted.
-
-Do not run main.py locally with tournament credentials to inspect forecasts. All dry runs use fictional fixtures. Framework-dependent integration is marked NOT EXECUTED offline on every adapter line; only an authorized Test Bot run checks the locked SDK and live service contracts.
+Set TEMP/TMP to the job temporary folder. Tests block external sockets and subprocesses; mutation runners start guarded test processes serially. No dependencies were installed and no service was contacted for this release. The pinned SDK is forecasting-tools 0.2.92; pyproject.toml, poetry.lock and bot_helpers.py retain their original bytes. Every main.py line marks live SDK glue as NOT EXECUTED offline. Only the operator's later Test Bot runs can verify that boundary.

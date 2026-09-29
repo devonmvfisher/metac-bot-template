@@ -1,0 +1,13 @@
+{
+ "kind": "observation",
+ "label": "SYNTHETIC OBSERVATION, SIMULATED IN TESTS",
+ "source_url": "https://slow.example/series",
+ "fetched_utc": null,
+ "method": "none: written by hand; no request was made",
+ "observed": "No reply within 20 s. No bytes were received.",
+ "simulate": [
+  "the opener raises TimeoutError",
+  "the reply trickles 1,024 bytes per read while the fake clock moves 4 s per read"
+ ],
+ "provenance": "Written by Claude Opus 5.5 (v1-r3 build, Mon Sep 28 2026). Every value is invented; no provider data."
+}

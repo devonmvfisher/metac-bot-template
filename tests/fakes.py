@@ -156,7 +156,7 @@ class FakeGitHub:
             if issue["number"] == number:
                 issue["created_at"] = self.now.isoformat()
 
-    def runs(self):
+    def runs(self, workflow=None):
         return self.run_entries
 
 
@@ -175,7 +175,7 @@ def fixture(name):
 def deps_for(values, prepare=None, delay=0, clock=None):
     clock = clock or FakeClock()
     state = RunState(clock)
-    deps = Dependencies(TextClient(values, delay), clock, state, {}, prepare=prepare)
+    deps = Dependencies(TextClient(values, delay), clock, state, {"NUMERIC_V1": "false"}, prepare=prepare)
     return deps
 
 

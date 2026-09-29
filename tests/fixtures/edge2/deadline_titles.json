@@ -1,0 +1,812 @@
+{
+ "_label": "SYNTHETIC",
+ "_source": "SYNTHETIC. Invented titles and ids made by tests/edge2_titles.py (random.Random(20260928), with its own templates and word lists; it reads no file and no network). No title is, or is derived from, a real question. Regenerate with: python -B tests/edge2_titles.py --write",
+ "_written_by": "tests/edge2_titles.py, seed 20260928, 2026-09-28",
+ "_rule": "Lower-case the title, then re.search(regex). Every 'deadline' title must match; every 'not_deadline' title must not.",
+ "regex": "\\b(before|by)\\b[^?]*\\b(20\\d\\d|january|february|march|april|may|june|july|august|september|october|november|december)\\b",
+ "counts": {
+  "deadline": 88,
+  "deadline_season": 61,
+  "deadline_minibench": 27,
+  "not_deadline": 71
+ },
+ "deadline": [
+  {
+   "post": 930006,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the \u201clumen crate\u201d batch VAA at Nolvex trial before May 8?"
+  },
+  {
+   "post": 930039,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the \u201clumen crate\u201d batch VAB at Nolvex trial before May 9?"
+  },
+  {
+   "post": 930102,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the \u201cribbon pod\u201d batch VAC at Nolvex trial before May 10?"
+  },
+  {
+   "post": 930119,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the \u201cember spool\u201d batch VAD at Nolvex trial before May 11, 2025?"
+  },
+  {
+   "post": 930130,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the \u201cribbon pod\u201d batch VAE at Nolvex trial before May 12, 2027?"
+  },
+  {
+   "post": 930236,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the \u201cribbon pod\u201d batch VAF at Nolvex trial before May 13, 2038?"
+  },
+  {
+   "post": 930387,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the \u201cember spool\u201d batch VAG at Nolvex trial before May 14, 2026?"
+  },
+  {
+   "post": 930400,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the \u201cember spool\u201d batch VAH at Nolvex trial before May 15, 2026?"
+  },
+  {
+   "post": 930412,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the \u201cribbon pod\u201d batch VAI at Nolvex trial before May 16, 2026?"
+  },
+  {
+   "post": 930684,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the \"opal lattice\" batch VAJ at Nolvex trial before May 17, 2026?"
+  },
+  {
+   "post": 930708,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the \"ember spool\" batch VAK at Nolvex trial before May 18, 2026?"
+  },
+  {
+   "post": 930735,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the \"opal lattice\" batch VAL at Nolvex trial before May 19, 2026?"
+  },
+  {
+   "post": 930771,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the \"opal lattice\" batch VAM at Nolvex trial before May 20, 2026?"
+  },
+  {
+   "post": 930801,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the \"ribbon pod\" batch VAN at Nolvex trial before May 21, 2026?"
+  },
+  {
+   "post": 930852,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ribbon pod batch VAO at Nolvex trial (guild test) before May 22, 2026?"
+  },
+  {
+   "post": 930876,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the lumen crate batch VAP at Nolvex trial (guild test) before May 23, 2026?"
+  },
+  {
+   "post": 930900,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the opal lattice batch VAQ at Nolvex trial (guild test) before May 24, 2026?"
+  },
+  {
+   "post": 930972,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the opal lattice batch VAR at Nolvex trial (guild test) before May 25, 2026?"
+  },
+  {
+   "post": 930986,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the opal lattice batch VAS at Nolvex trial (guild test) before May 26, 2026?"
+  },
+  {
+   "post": 931030,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VAT at Nolvex trial (guild test) before May 27, 2026?"
+  },
+  {
+   "post": 931064,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VAU at Nolvex trial (guild test) before May 8, 2026?"
+  },
+  {
+   "post": 931107,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild certify the opal lattice batch VAV at Nolvex trial (guild test) before May 9, 2026?"
+  },
+  {
+   "post": 931147,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the lumen crate batch VAW at Nolvex trial (guild test) before May 10, 2026?"
+  },
+  {
+   "post": 931181,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the opal lattice batch VAX at Nolvex trial (guild test) before May 11, 2026?"
+  },
+  {
+   "post": 931374,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the ember spool batch VAY at Nolvex trial (guild test) before May 12, 2026?"
+  },
+  {
+   "post": 931425,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VAZ at Nolvex trial (guild test) before May 13, 2026?"
+  },
+  {
+   "post": 931441,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VBA at Nolvex trial (guild test) before May 14, 2026?"
+  },
+  {
+   "post": 931457,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VBB at Nolvex trial before May 15, 2026?"
+  },
+  {
+   "post": 931647,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ember spool batch VBC at Nolvex trial before May 16, 2026?"
+  },
+  {
+   "post": 931741,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ribbon pod batch VBD at Nolvex trial before May 17, 2026?"
+  },
+  {
+   "post": 931820,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club reach 60% yield with its ember spool batch VBE at Nolvex trial before May 18, 2026?"
+  },
+  {
+   "post": 931895,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild reach 60% yield with its ribbon pod batch VBF at Nolvex trial before May 19, 2026?"
+  },
+  {
+   "post": 931970,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VBG at Nolvex trial before September 20, 2026?"
+  },
+  {
+   "post": 932075,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VBH at Nolvex trial before September 21, 2026?"
+  },
+  {
+   "post": 932095,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ember spool batch VBI at Nolvex trial before September 22, 2026?"
+  },
+  {
+   "post": 932160,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ribbon pod batch VBJ at Nolvex trial on or before September 23, 2026?"
+  },
+  {
+   "post": 932250,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club certify the lumen crate batch VBK between two Nolvex trials before September 24, 2026?"
+  },
+  {
+   "post": 932265,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ember spool batch VBL at Nolvex trial before September 25, 2026?"
+  },
+  {
+   "post": 932359,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle certify the 2026 ember spool batch VBM at Nolvex trial before September 26, 2026?"
+  },
+  {
+   "post": 932409,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 ember spool batch VBN at Nolvex trial before September 27, 2026?"
+  },
+  {
+   "post": 932420,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 lumen crate batch VBO at Nolvex trial before September 8, 2026?"
+  },
+  {
+   "post": 932550,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 ribbon pod batch VBP at Nolvex trial before September 9, 2026?"
+  },
+  {
+   "post": 932553,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the 2026 ember spool batch VBQ at Nolvex trial before September 10, 2026?"
+  },
+  {
+   "post": 932578,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the 2026 ribbon pod batch VBR at Nolvex trial before September 11, 2026?"
+  },
+  {
+   "post": 932664,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 opal lattice batch VBS at Nolvex trial before September 12, 2026?"
+  },
+  {
+   "post": 932719,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 ribbon pod batch VBT at Nolvex trial before September 13, 2026?"
+  },
+  {
+   "post": 932735,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the 2026 ember spool batch VBU at Nolvex trial before September 14, 2026?"
+  },
+  {
+   "post": 932743,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 opal lattice batch VBV at Nolvex trial before September 15, 2026?"
+  },
+  {
+   "post": 932766,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the 2026 opal lattice batch VBW at Nolvex trial before June 16, 2026?"
+  },
+  {
+   "post": 932782,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the 2026 ribbon pod batch VBX at Nolvex trial before June 17, 2026?"
+  },
+  {
+   "post": 932815,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the 2026 ember spool batch VBY at Nolvex trial before June 18, 2026?"
+  },
+  {
+   "post": 932816,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the 2026 ribbon pod batch VBZ at Nolvex trial before June 19, 2026?"
+  },
+  {
+   "post": 932821,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the lumen crate batch VCA at Nolvex trial before June 20, 2026?"
+  },
+  {
+   "post": 932900,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the lumen crate batch VCB at Nolvex trial before June 21, 2026?"
+  },
+  {
+   "post": 932980,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild certify the ember spool batch VCC at Nolvex trial before June 22, 2026?"
+  },
+  {
+   "post": 933097,
+   "group": "summer",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VCD at Nolvex trial before June 23, 2026?"
+  },
+  {
+   "post": 933171,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VCE at Nolvex trial before June 24, 2026?"
+  },
+  {
+   "post": 933196,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VCF at Nolvex trial before June 25, 2026?"
+  },
+  {
+   "post": 933200,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ribbon pod batch VCG at Nolvex trial before June 26, 2026?"
+  },
+  {
+   "post": 933219,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ribbon pod batch VCH at Nolvex trial before June 27, 2026?"
+  },
+  {
+   "post": 933220,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VCI at Nolvex trial before July 8, 2026?"
+  },
+  {
+   "post": 933228,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VCJ at Nolvex trial before July 9, 2026?"
+  },
+  {
+   "post": 933284,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the lumen crate batch VCK at Nolvex trial before July 10, 2026?"
+  },
+  {
+   "post": 933296,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VCL at Nolvex trial before July 11, 2026?"
+  },
+  {
+   "post": 933333,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild certify the ember spool batch VCM at Nolvex trial before July 12, 2026?"
+  },
+  {
+   "post": 933350,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ember spool batch VCN at Nolvex trial before July 13, 2026?"
+  },
+  {
+   "post": 933358,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ribbon pod batch VCO at Nolvex trial before July 14, 2026?"
+  },
+  {
+   "post": 933375,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the opal lattice batch VCP at Nolvex trial before July 15, 2026?"
+  },
+  {
+   "post": 933380,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the opal lattice batch VCQ at Nolvex trial before July 16, 2026?"
+  },
+  {
+   "post": 933419,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the lumen crate batch VCR at Nolvex trial before July 17, 2026?"
+  },
+  {
+   "post": 933506,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the lumen crate batch VCS at Nolvex trial before August 18, 2026?"
+  },
+  {
+   "post": 933607,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ember spool batch VCT at Nolvex trial before August 19, 2026?"
+  },
+  {
+   "post": 933643,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VCU at Nolvex trial before August 20, 2026?"
+  },
+  {
+   "post": 933688,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VCV at Nolvex trial before August 21, 2026?"
+  },
+  {
+   "post": 933744,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VCW at Nolvex trial before August 22, 2026?"
+  },
+  {
+   "post": 933747,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the lumen crate batch VCX at Nolvex trial before August 23, 2026?"
+  },
+  {
+   "post": 933776,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild certify the lumen crate batch VCY at Nolvex trial by April 24, 2026?"
+  },
+  {
+   "post": 933790,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild certify the ribbon pod batch VCZ at Nolvex trial by April 25, 2026?"
+  },
+  {
+   "post": 933798,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ember spool batch VDA at Nolvex trial by April 26, 2026?"
+  },
+  {
+   "post": 933822,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ribbon pod batch VDB at Nolvex trial by April 27, 2026?"
+  },
+  {
+   "post": 933846,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild certify the opal lattice batch VDC at Nolvex trial by April 8, 2026?"
+  },
+  {
+   "post": 933862,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ember spool batch VDD at Nolvex trial by March 9, 2026?"
+  },
+  {
+   "post": 933879,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VDE at Nolvex trial by March 10, 2026?"
+  },
+  {
+   "post": 933914,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ribbon pod batch VDF at Nolvex trial by January 11, 2026?"
+  },
+  {
+   "post": 933945,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the opal lattice batch VDG at Nolvex trial by February 12, 2026?"
+  },
+  {
+   "post": 933949,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle certify the ember spool batch VDH at Nolvex trial by October 13, 2026?"
+  },
+  {
+   "post": 933960,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club certify the ribbon pod batch VDI at Nolvex trial by November 14, 2026?"
+  },
+  {
+   "post": 933992,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall certify the ember spool batch VDJ at Nolvex trial by December 15, 2026?"
+  }
+ ],
+ "not_deadline": [
+  {
+   "post": 930002,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the \u201cember spool\u201d batch VAA during January 5, 2026 by protocol?"
+  },
+  {
+   "post": 930066,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the \u201cribbon pod\u201d batch VAB before the bell? (February 9, 2026)"
+  },
+  {
+   "post": 930188,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the \u201copal lattice\u201d batch VAC nearby during March 7, 2026?"
+  },
+  {
+   "post": 930192,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the \u201clumen crate\u201d batch VAD standby during April 8, 2026?"
+  },
+  {
+   "post": 930258,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the \u201copal lattice\u201d batch VAE whereby during May 9, 2026?"
+  },
+  {
+   "post": 930370,
+   "group": "spring",
+   "title": "Will SYNTHETIC Nuvrasko Hall appoint a mayor for its \u201copal lattice\u201d trial in 2026?"
+  },
+  {
+   "post": 930372,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club qualify the \u201copal lattice\u201d batch VAG between two trial cycles during July 11, 2026?"
+  },
+  {
+   "post": 930432,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club qualify the \u201cember spool\u201d batch VAH between two trial cycles during August 12, 2026?"
+  },
+  {
+   "post": 930527,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the opal lattice batch VAI between two trial cycles during September 13, 2026?"
+  },
+  {
+   "post": 930549,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the opal lattice batch VAJ between two trial cycles during October 14, 2026?"
+  },
+  {
+   "post": 930650,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the ribbon pod batch VAK between two trial cycles during November 15, 2026?"
+  },
+  {
+   "post": 930692,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the ember spool batch VAL between two trial cycles during December 16, 2026?"
+  },
+  {
+   "post": 930850,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the opal lattice batch VAM between two trial cycles during January 17, 2026?"
+  },
+  {
+   "post": 930955,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the lumen crate batch VAN between two trial cycles during February 18, 2026?"
+  },
+  {
+   "post": 930995,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the ribbon pod batch VAO between two trial cycles during March 19, 2026?"
+  },
+  {
+   "post": 931139,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the ribbon pod batch VAP between two trial cycles during April 20, 2026?"
+  },
+  {
+   "post": 931326,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the ember spool batch VAQ between two trial cycles during May 21, 2026?"
+  },
+  {
+   "post": 931456,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvr\u00fcn Guild qualify the opal lattice batch VAR between two trial cycles during June 22, 2026?"
+  },
+  {
+   "post": 931481,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club qualify the ember spool batch VAS during July 23, 2026?"
+  },
+  {
+   "post": 931514,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ember spool batch VAT during August 24, 2026?"
+  },
+  {
+   "post": 931728,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club qualify the ribbon pod batch VAU (guild test) during September 5, 2026?"
+  },
+  {
+   "post": 931758,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ribbon pod batch VAV (guild test) during October 6, 2026?"
+  },
+  {
+   "post": 931865,
+   "group": "spring",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the lumen crate batch VAW (guild test) during November 7, 2026?"
+  },
+  {
+   "post": 931957,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild qualify the opal lattice batch VAX (guild test) during December 8, 2026?"
+  },
+  {
+   "post": 932067,
+   "group": "spring",
+   "title": "Will SYNTHETIC Velqun Guild qualify the ribbon pod batch VAY (guild test) during January 9, 2026?"
+  },
+  {
+   "post": 932104,
+   "group": "spring",
+   "title": "Will SYNTHETIC Morzivel Club qualify the ribbon pod batch VAZ (guild test) during February 10, 2026?"
+  },
+  {
+   "post": 932178,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the lumen crate batch VBA (guild test) during March 11, 2026?"
+  },
+  {
+   "post": 932186,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild qualify the ember spool batch VBB (guild test) during April 12, 2026?"
+  },
+  {
+   "post": 932196,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the ribbon pod batch VBC (guild test) during May 13, 2026?"
+  },
+  {
+   "post": 932290,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the opal lattice batch VBD (guild test) during June 14, 2026?"
+  },
+  {
+   "post": 932301,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle reach 40% yield with its lumen crate batch VBE during July 15, 2026?"
+  },
+  {
+   "post": 932318,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild reach 40% yield with its lumen crate batch VBF during August 16, 2026?"
+  },
+  {
+   "post": 932323,
+   "group": "summer",
+   "title": "Will SYNTHETIC Morzivel Club reach 40% yield with its ember spool batch VBG during September 17, 2026?"
+  },
+  {
+   "post": 932380,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild reach 40% yield with its ember spool batch VBH during October 18, 2026?"
+  },
+  {
+   "post": 932479,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild reach 40% yield with its ember spool batch VBI during November 19, 2026?"
+  },
+  {
+   "post": 932545,
+   "group": "summer",
+   "title": "Will SYNTHETIC Morzivel Club reach 40% yield with its ember spool batch VBJ during December 20, 2026?"
+  },
+  {
+   "post": 932610,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle reach 40% yield with its ribbon pod batch VBK during January 21, 2026?"
+  },
+  {
+   "post": 932673,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall reach 40% yield with its ribbon pod batch VBL during February 22, 2026?"
+  },
+  {
+   "post": 932679,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle reach 40% yield with its lumen crate batch VBM during March 23, 2026?"
+  },
+  {
+   "post": 932751,
+   "group": "summer",
+   "title": "Will SYNTHETIC Velqun Guild qualify the opal lattice batch VBN during April 24, 2026?"
+  },
+  {
+   "post": 932773,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the lumen crate batch VBO during May 5, 2026?"
+  },
+  {
+   "post": 932893,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ribbon pod batch VBP during June 6, 2026?"
+  },
+  {
+   "post": 932961,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the opal lattice batch VBQ during July 7, 2026?"
+  },
+  {
+   "post": 932975,
+   "group": "summer",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the ember spool batch VBR during August 8, 2026?"
+  },
+  {
+   "post": 932977,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ribbon pod batch VBS during September 9, 2026?"
+  },
+  {
+   "post": 933072,
+   "group": "summer",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the opal lattice batch VBT during October 10, 2026?"
+  },
+  {
+   "post": 933104,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the lumen crate batch VBU during November 11, 2026?"
+  },
+  {
+   "post": 933105,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the ember spool batch VBV during December 12, 2026?"
+  },
+  {
+   "post": 933168,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the opal lattice batch VBW during January 13, 2026?"
+  },
+  {
+   "post": 933202,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the opal lattice batch VBX in 2026?"
+  },
+  {
+   "post": 933211,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ribbon pod batch VBY in 2026?"
+  },
+  {
+   "post": 933256,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club qualify the ribbon pod batch VBZ in 2026?"
+  },
+  {
+   "post": 933326,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the ribbon pod batch VCA in 2026?"
+  },
+  {
+   "post": 933330,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ribbon pod batch VCB in 2026?"
+  },
+  {
+   "post": 933341,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the lumen crate batch VCC in 2026?"
+  },
+  {
+   "post": 933364,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the opal lattice batch VCD in 2026?"
+  },
+  {
+   "post": 933413,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the ribbon pod batch VCE in 2026?"
+  },
+  {
+   "post": 933521,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ember spool batch VCF in 2026?"
+  },
+  {
+   "post": 933534,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the lumen crate batch VCG in 2026?"
+  },
+  {
+   "post": 933630,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Morzivel Club qualify the ribbon pod batch VCH in 2026?"
+  },
+  {
+   "post": 933631,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the lumen crate batch VCI in 2026?"
+  },
+  {
+   "post": 933700,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the ember spool batch VCJ in 2026?"
+  },
+  {
+   "post": 933712,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the ribbon pod batch VCK in 2026?"
+  },
+  {
+   "post": 933755,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the lumen crate batch VCL in 2026?"
+  },
+  {
+   "post": 933757,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Zuvren Circle qualify the ember spool batch VCM in 2026?"
+  },
+  {
+   "post": 933792,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the opal lattice batch VCN in the Nolvex trial?"
+  },
+  {
+   "post": 933898,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the ember spool batch VCO in the Nolvex trial?"
+  },
+  {
+   "post": 933916,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Nuvrasko Hall qualify the opal lattice batch VCP in the Nolvex trial?"
+  },
+  {
+   "post": 933930,
+   "group": "minibench",
+   "title": "Will SYNTHETIC Velqun Guild qualify the opal lattice batch VCQ in the Nolvex trial?"
+  },
+  {
+   "post": 933958,
+   "group": "minibench",
+   "title": "Which SYNTHETIC Velqun Guild trial will qualify the lumen crate batch VCR?"
+  },
+  {
+   "post": 933981,
+   "group": "minibench",
+   "title": "On which SYNTHETIC Zuvren Circle trial will the ember spool batch VCS qualify?"
+  }
+ ]
+}

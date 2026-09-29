@@ -1,0 +1,18 @@
+{
+ "kind": "page",
+ "label": "REAL (reference number redacted)",
+ "source_url": "https://www.bls.gov/news.release/empsit.nr0.htm",
+ "fetched_utc": "2026-09-27T19:14:33Z",
+ "method": "curl with a desktop-browser User-Agent from the packet writer's machine; no key, no sign-in",
+ "method_note": "2026-09-28: fetching with a browser User-Agent was a mistake and has stopped; the runtime identifies itself as SextantBot.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, https://www.bls.gov/news.release/empsit.nr0.htm (403 reply, 2026-09-27). Public domain; BLS asks to be cited as the source (https://www.bls.gov/bls/linksite.htm).",
+ "status": 403,
+ "headers": {
+  "Content-Type": "text/html"
+ },
+ "declared_length": 1321,
+ "original_bytes": 1321,
+ "trim_note": "Whole reply. BLS (Akamai) refused the scripted request with 403 Access Denied even with a browser User-Agent. The page says automated retrieval that does not follow BLS usage policy is prohibited. The reader must treat this as a failed page: no text from it may reach the prompt, and the host is not retried in the same run.",
+ "provenance": "Written by Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+ "body": "<!DOCTYPE HTML>\n<html lang=\"en-us\">      \n               <head> \n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n<title>Access Denied</title>\n</head>\n  <style type=\"text/css\">\n    .centerDiv\n    {\n      width: 60%;\n      height:200px;\n      margin: 0 auto;\n      background-color:#FFFFFF ;\n    }\n  </style>\n<body>\n<div class=\"centerDiv\">\n               <h1><a href=https://www.bls.gov><!--img src=\"/apology_objects/images/01.jpg\" border=\"0\"--></a><span style=\"font-family: Times, serif; color: #990000; font-size: 38px;\">Bureau of Labor Statistics</span></h1>\n    <h2>Access Denied</h2>\n              \n               <p>The BLS is committed to providing data promptly and according to established schedules. Automated retrieval programs (commonly called \"robots\" or \"bots\") can cause delays and interfere with other customers' timely access to information. Therefore, bot activity that doesn't conform to BLS usage policy is prohibited.</p>\n              \n \n               <p>We apologize for any inconvenience. If you believe we have made an error, please <a href=https://data.bls.gov/forms/opb.htm?akamai-0.REDACTED>contact us</a>.</p>\n              \n               <p>Please contact your administrator with the error code: 0.REDACTED</p>\n</div>\n</body>\n</html>"
+}

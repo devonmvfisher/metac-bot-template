@@ -73,8 +73,7 @@ class ReviewTests(unittest.TestCase):
         with patch.dict(config.COSTS, B=2), patch.object(budget, "remaining_season", return_value=10):
             threshold = config.FLOOR_CREDIT + 2 * 10 + config.COSTS["C"] * 60
             self.assertEqual(budget.choose(FakeClock().now(), threshold, "minibench", "slack"), "C")
-            with self.assertRaisesRegex(SkipQuestion, "BUDGET_MINIBENCH"):
-                budget.choose(FakeClock().now(), threshold - 1, "minibench", "slack")
+            self.assertEqual(budget.choose(FakeClock().now(), threshold - 1, "minibench", "slack"), "M")
 
     def test_R19_trickling_response_total_limit(self):
         clock, reads = FakeClock(), []
@@ -122,7 +121,7 @@ class ReviewTests(unittest.TestCase):
             return Response()
         with patch("urllib.request.build_opener", return_value=SimpleNamespace(open=opened)):
             client = llm.Client({"OPENROUTER_API_KEY": "FAKEKEY123"}, FakeClock(), lambda *a: None)
-            _, model = client.slot(config.SLOTS["C"][0], "fixture")
+            _, model = client.slot(config.SOL + config.FLASH, "fixture")
         self.assertEqual(model, config.FLASH[0])
         self.assertEqual(calls, [config.SOL[0], config.SOL[0], config.FLASH[0]])
 
@@ -235,7 +234,7 @@ class ReviewTests(unittest.TestCase):
         async def execute(args, *other):
             seen.append((args.loop_minutes, args.poll_minutes))
         with patch.object(module, "setup_logs"), patch.object(module, "execute", side_effect=execute), \
-             patch.object(module.RunState, "write"), patch.object(module.os, "environ", {}), \
+             patch.object(module.RunState, "write"), patch.object(module.ledger, "save"), patch.object(module.os, "environ", {}), \
              patch.object(sys, "argv", ["main.py", "--loop-minutes", "oops", "--poll-minutes", " 4 "]):
             with self.assertRaises(SystemExit) as exited:
                 module.main()
@@ -244,8 +243,9 @@ class ReviewTests(unittest.TestCase):
         bot = bot_for(module)
         bot.f_loop_minutes = 2
         bot.f_clock.sleep(121)
-        with self.assertRaisesRegex(SkipQuestion, "TOO_LATE"):
+        with patch.object(module, "already_forecast", return_value=False):
             asyncio.run(bot.run_research(raw_question(sdk)))
+        self.assertIn(8101, bot.f_context)
 
     def test_R23_literal_tournament_group_and_test_independent(self):
         tournament = (ROOT / ".github/workflows/run_bot_on_tournament.yaml").read_text()
@@ -303,8 +303,113 @@ class ReviewTests(unittest.TestCase):
         self.assertTrue(ok.get(q).available)
         self.assertEqual(ok.errors[q.qid], "OK")
 
+    def test_R30_research_waits_on_rate_limit_then_succeeds(self):
+        from fbot.research import Service
+        from tests.fakes import deps_for, fixture
+        q, _ = fixture("binary_long")
+        class Limited(Exception):
+            status_code = 429
+        calls, naps = [], []
+        def fetch(*a, **k):
+            calls.append(1)
+            if len(calls) < 3:
+                raise Limited("slow down")
+            return ("news", 2)
+        service = Service({"ASKNEWS_API_KEY": "FAKEKEY123"}, deps_for({}).state, fetch)
+        service.sleep = naps.append
+        self.assertTrue(service.get(q).available)
+        self.assertEqual((len(calls), naps, service.errors[q.qid]), (3, [5, 10], "OK"))
+        calls.clear(); naps.clear()
+        def always(*a, **k):
+            calls.append(1)
+            raise Limited("slow down")
+        capped = Service({"ASKNEWS_API_KEY": "FAKEKEY123"}, deps_for({}).state, always)
+        capped.sleep = naps.append
+        self.assertFalse(capped.get(q).available)
+        self.assertEqual((len(calls), naps, capped.errors[q.qid]), (4, [5, 10, 15], "Limited:429"))
+        calls.clear(); naps.clear()
+        def other(*a, **k):
+            calls.append(1)
+            raise ValueError("x")
+        plain = Service({"ASKNEWS_API_KEY": "FAKEKEY123"}, deps_for({}).state, other)
+        plain.sleep = naps.append
+        self.assertFalse(plain.get(q).available)
+        self.assertEqual((len(calls), naps), (2, []))
+
     def test_R24_single_prediction_is_not_reaggregated(self):
         module, _ = load_adapter()
         bot = module.FBot()
         for value in (0.37, object(), [0.0, 0.5, 1.0]):
             self.assertIs(asyncio.run(bot._aggregate_predictions([value], object())), value)
+
+    def test_R24_other_lengths_await_base_aggregator(self):
+        module, sdk = load_adapter()
+        bot = module.FBot()
+        question, expected = object(), object()
+        calls = []
+
+        async def aggregate(instance, predictions, raw_question):
+            calls.append((instance, predictions, raw_question))
+            return expected
+
+        with patch.object(sdk.ForecastBot, "_aggregate_predictions", new=aggregate, create=True):
+            for predictions in ([], [object(), object()]):
+                with self.subTest(length=len(predictions)):
+                    self.assertIs(asyncio.run(bot._aggregate_predictions(predictions, question)), expected)
+                    self.assertIs(calls[-1][0], bot)
+                    self.assertIs(calls[-1][1], predictions)
+                    self.assertIs(calls[-1][2], question)
+        self.assertEqual(len(calls), 2)
+
+    def test_R25_transport_user_agent_and_caller_headers(self):
+        default = "SextantBot/1.0 (+https://github.com/devonmvfisher/metac-bot-template)"
+        requests = []
+
+        class Response:
+            status = 200
+            def __init__(self): self.body = b"{}"
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def read(self, size):
+                data, self.body = self.body, b""
+                return data
+
+        def opened(request, **kwargs):
+            requests.append(request)
+            return Response()
+
+        cases = (None, {}, {"Authorization": "Bearer FAKEKEY123"},
+                 {"User-Agent": "FixtureClient/1.0", "Content-Type": "application/json"})
+        with patch("urllib.request.build_opener", return_value=SimpleNamespace(open=opened)):
+            for headers in cases:
+                original = None if headers is None else dict(headers)
+                with self.subTest(headers=original):
+                    self.assertEqual(llm.transport("GET", "https://example.invalid/fixture", headers, None, 10), (200, {}))
+                    request = requests[-1]
+                    self.assertEqual(request.get_header("User-agent"), (headers or {}).get("User-Agent", default))
+                    for name, value in (headers or {}).items():
+                        self.assertEqual(request.get_header(name.capitalize()), value)
+                    self.assertEqual(headers, original)
+        self.assertEqual(len(requests), len(cases))
+
+    def test_R26_execute_disables_research_summarization(self):
+        module, _ = load_adapter()
+        clock = FakeClock()
+        state = RunState(clock)
+        pacer = SimpleNamespace(refresh=lambda: (100, 100))
+
+        async def no_polls(*args, **kwargs):
+            pass
+
+        with patch.object(module, "Client", return_value=object()), \
+             patch.object(module, "Pacer", return_value=pacer), \
+             patch.object(module, "Service", return_value=object()), \
+             patch.object(module, "open_count", return_value=0), \
+             patch.object(module, "install_post_gate"), patch.object(state, "write"), \
+             patch.object(module.schedule, "run_targets", new=no_polls), \
+             patch.object(module, "FBot", wraps=module.FBot) as constructor:
+            args = SimpleNamespace(mode="tournament", loop_minutes=45, poll_minutes=10)
+            asyncio.run(module.execute(args, {"BOT_ENABLED": "true"}, clock, state))
+        self.assertEqual(constructor.call_count, 2)
+        for call in constructor.call_args_list:
+            self.assertIs(call.kwargs["enable_summarize_research"], False)

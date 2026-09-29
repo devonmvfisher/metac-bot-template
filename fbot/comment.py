@@ -74,9 +74,13 @@ def build(question, result, attempted, research, env=None):
     rationale = result.rationales[0] if result.rationales else ""
     outside = clean(section(rationale, "OUTSIDE VIEW"), env)[:100]
     inside = clean(section(rationale, "INSIDE VIEW"), env)[:125]
-    method = {"binary": "log-odds median", "multiple_choice": "option mean + floor",
+    method = {"binary": "weighted log-odds median", "multiple_choice": "weighted option mean + floor",
               "numeric": "percentile mean, sorted", "discrete": "percentile mean, sorted"}[question.kind]
+    if result.numeric_v1:
+        from .numeric import METHOD
+        method = METHOD
     research_line = f"AskNews latest news, {research.articles} articles" if research.available else "NONE (unavailable)"
+    research_line = result.research_label or research_line
     dropped = "; ".join(result.dropped) or "none"
     caps = ",".join(result.caps) or "none"
     fixed = [header, final_line, clean(f"HOW {method}; caps applied:{caps}; {len(result.models)}/{attempted} ok", env),
@@ -104,12 +108,7 @@ def build(question, result, attempted, research, env=None):
             overflow = max(0, len(joined()) - 1000)
             fixed[index] = fixed[index][:max(0, len(fixed[index]) - overflow)]
     summary = joined()[:1000]
-    rationales = [(f"RUN {i + 1}\n" + clean(text, env))[:2500] for i, text in enumerate(result.rationales)]
-    allowed = 10000 - len(summary) - 2
+    from .hardening import cap_rationales
     result.summary = summary
-    result.rationales = []
-    for text in rationales:
-        text = text[:max(0, allowed - 2)]
-        result.rationales.append(text)
-        allowed -= len(text) + 2
+    result.rationales = cap_rationales(summary, [clean(text, env) for text in result.rationales])
     return result

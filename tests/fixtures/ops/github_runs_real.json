@@ -1,0 +1,46 @@
+{
+  "_source": "REAL. GET https://api.github.com/repos/Metaculus/metac-bot-template/actions/workflows/run_bot_on_tournament.yaml/runs?per_page=4, fetched Sun Sep 27 2026 about 14:30 CT without a token (HTTP 200, total_count 3). Trimmed to 11 fields per run; actor, repository and head-commit fields removed. Re-fetched at 15:15 CT the same day in the packet review: the same 3 runs, every kept field identical.",
+  "_written_by": "Claude Opus 5.5 (workflow sextant-and-time-check, Sun Sep 27 2026 14:10 CT)",
+  "total_count": 3,
+  "workflow_runs": [
+    {
+      "id": 25884318636,
+      "name": "Forecast on new AI tournament questions",
+      "path": ".github/workflows/run_bot_on_tournament.yaml",
+      "event": "schedule",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-05-14T20:37:27Z",
+      "created_at": "2026-05-14T20:37:27Z",
+      "updated_at": "2026-05-14T20:38:37Z",
+      "run_attempt": 1,
+      "workflow_id": 144649210
+    },
+    {
+      "id": 25882924522,
+      "name": "Forecast on new AI tournament questions",
+      "path": ".github/workflows/run_bot_on_tournament.yaml",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-05-14T20:09:46Z",
+      "created_at": "2026-05-14T20:09:46Z",
+      "updated_at": "2026-05-14T20:11:27Z",
+      "run_attempt": 1,
+      "workflow_id": 144649210
+    },
+    {
+      "id": 25881568817,
+      "name": "Forecast on new AI tournament questions",
+      "path": ".github/workflows/run_bot_on_tournament.yaml",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_started_at": "2026-05-14T19:42:21Z",
+      "created_at": "2026-05-14T19:42:21Z",
+      "updated_at": "2026-05-14T19:43:22Z",
+      "run_attempt": 1,
+      "workflow_id": 144649210
+    }
+  ]
+}

@@ -1,6 +1,13 @@
 name: Test Bot
 on:
   workflow_dispatch:
+    inputs:
+      preset:
+        description: Model preset for Test Bot
+        required: true
+        type: choice
+        default: C
+        options: [auto, A, B, C]
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
@@ -48,11 +55,35 @@ jobs:
         env:
           METACULUS_TOKEN: ${{ secrets.METACULUS_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_API_KEY_OWN: ${{ secrets.OPENROUTER_API_KEY_OWN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ASKNEWS_CLIENT_ID: ${{ secrets.ASKNEWS_CLIENT_ID }}
           ASKNEWS_SECRET: ${{ secrets.ASKNEWS_SECRET }}
           ASKNEWS_API_KEY: ${{ secrets.ASKNEWS_API_KEY }}
           USE_OPENAI_BRIDGE: ${{ vars.USE_OPENAI_BRIDGE }}
+          OWN_KEY_MODE: ${{ vars.OWN_KEY_MODE }}
+          BUDGET_CAP_USD: ${{ vars.BUDGET_CAP_USD }}
+          BUDGET_CAP_OWN_USD: ${{ vars.BUDGET_CAP_OWN_USD }}
+          TEST_PRESET: ${{ inputs.preset }}
+          MODEL_PRESET: ${{ vars.MODEL_PRESET }}
+          PRESET_RESERVE_USD: ${{ vars.PRESET_RESERVE_USD }}
+          RESEARCH2_ENABLED: ${{ vars.RESEARCH2_ENABLED }}
+          MARKETS_ENABLED: ${{ vars.MARKETS_ENABLED }}
+          POLYMARKET_ENABLED: ${{ vars.POLYMARKET_ENABLED }}
+          MANIFOLD_ENABLED: ${{ vars.MANIFOLD_ENABLED }}
+          SOURCES_ENABLED: ${{ vars.SOURCES_ENABLED }}
+          NUMERIC_V1: ${{ vars.NUMERIC_V1 }}
+          PROMPTS_V1: ${{ vars.PROMPTS_V1 }}
+          DAILY_PROBE: ${{ vars.DAILY_PROBE }}
+          CONCURRENT_TARGETS: ${{ vars.CONCURRENT_TARGETS }}
+          CHAIN_ENABLED: ${{ vars.CHAIN_ENABLED }}
+          ASKNEWS_PARITY: ${{ vars.ASKNEWS_PARITY }}
+          ASKNEWS_ARCHIVE: ${{ vars.ASKNEWS_ARCHIVE }}
+          DEADLINE_SHIFT: ${{ vars.DEADLINE_SHIFT }}
+          SEASON_ID: ${{ vars.SEASON_ID }}
+          SEASON_SLUG: ${{ vars.SEASON_SLUG }}
+          SEASON_END_UTC: ${{ vars.SEASON_END_UTC }}
+          ALLOW_NEW_SEASON: ${{ vars.ALLOW_NEW_SEASON }}
       - name: Ops
         if: always()
         run: |

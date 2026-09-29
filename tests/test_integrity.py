@@ -21,7 +21,7 @@ class IntegrityTests(unittest.TestCase):
         result = forecast(q, Research(), "C", deps)
         api = FakeMetaculus(deps.state)
         api.gate.register(q, result)
-        deps.clock.sleep(11)
+        deps.clock.sleep(result.deadline + 1)
         with self.assertRaisesRegex(SkipQuestion, "TOO_LATE"):
             api.send("/api/questions/forecast/", [{"question": q.qid, "probability_yes": result.value}])
         self.assertFalse(api.requests)
@@ -68,15 +68,16 @@ class IntegrityTests(unittest.TestCase):
         pacer.refresh()
         pacer.refresh()
         self.assertIsNone(deps.state.spend())
-        self.assertEqual(choose(deps.clock.now(), 2.46, "season"), "C")
+        self.assertEqual(choose(deps.clock.now(), 2.54, "season"), "C")
+        self.assertEqual(choose(deps.clock.now(), 2.46, "season"), "M")
 
     def test_misread_retry_failure_stays_misread_all(self):
         q, _ = fixture("binary_long")
         calls = [0]
         def value(prompt):
             calls[0] += 1
-            return "already resolved\nProbability: 99%" if calls[0] == 1 else "unparseable"
-        deps = deps_for({SOL[0]: value})
+            return "already resolved\nProbability: 99%" if calls[0] <= 3 else "unparseable"
+        deps = deps_for({SOL[0]: value, FLASH[0]: value})
         with self.assertRaisesRegex(SkipQuestion, "MISREAD_ALL"):
             forecast(q, Research(), "C", deps)
 
@@ -103,5 +104,5 @@ class IntegrityTests(unittest.TestCase):
                 return 200, {"results": [{"question": {"status": "open"}}, {"question": {"status": "closed"}}], "next": "next"}
             return 200, {"results": [{"question": {"status": "open"}}, {"group_of_questions": []}], "next": None}
         self.assertEqual(metadata.open_count(33121, {}, send), 2)
-        self.assertIn("offset=50", calls[1][1])
+        self.assertIn("offset=2", calls[1][1])
         self.assertEqual(metadata.open_count(33121, {}, lambda *args: (403, {})), "unknown")

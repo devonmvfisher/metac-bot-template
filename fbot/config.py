@@ -1,6 +1,6 @@
 """Explicit targets, models and conservative output limits."""
 
-VERSION = "v0.1"
+VERSION = "v1"
 SEASON_ID = 33121
 SEASON_SLUG = "fall-futureeval-2026"
 MINIBENCH_ID = "minibench"
@@ -11,14 +11,26 @@ FORBIDDEN_TARGETS = (33022, "summer-futureeval-2026",
 SEASON_END_UTC = "2027-01-07T00:00:00Z"
 OPUS = ("anthropic/claude-opus-5.5",)
 SOL = ("openai/gpt-6-sol",)
-FLASH = ("google/gemini-3.8-flash", "google/gemini-3.6-flash")
+FLASH = ("google/gemini-3.8-flash", "google/gemini-3.6-flash") + SOL
 CHEAP = ("google/gemini-3.8-flash", "openai/gpt-6-luna")
 BRIDGE = ("gpt-6-sol",)
-SLOTS = {"A": (OPUS, SOL, FLASH + SOL), "B": (SOL, FLASH + SOL), "C": (SOL + FLASH,),
-         "BRIDGE": (BRIDGE,)}
-SHORT = {OPUS[0]: "Opus", SOL[0]: "Sol", BRIDGE[0]: "Bridge", **{m: "Flash" for m in FLASH}}
-PROBES = OPUS + SOL + FLASH + (CHEAP[1],)
-COSTS = {"A": 2.00, "B": 1.00, "C": 0.46, "BRIDGE": 0.46}
+# A tier addition changes this table, with its corresponding tests.
+TIERS = {
+    "A": {"runs": ((OPUS, 2), (OPUS, 2), (SOL, 2), (SOL, 2), (FLASH, 1)), "usd": 1.20},
+    "B": {"runs": ((OPUS, 2), (SOL, 2), (FLASH, 1), (FLASH, 1)), "usd": 0.77},
+    "C": {"runs": ((SOL, 2), (FLASH, 1), (FLASH, 1)), "usd": 0.36, "flash_down": ((SOL, 2), (SOL, 2))},
+    "M": {"runs": ((FLASH, 1), (FLASH, 1), (FLASH, 1)), "usd": 0.24, "fast": True},
+    "BRIDGE": {"runs": ((BRIDGE, 2),), "usd": 0.36, "bridge": True},
+}
+COST_SAFETY = 1.5
+DEADLINE_ODDS_MULT = 0.8
+SLOTS = {tier: tuple(chain for chain, weight in spec["runs"]) for tier, spec in TIERS.items()}
+MODEL_WEIGHTS = {chain[0]: weight for spec in TIERS.values() for chain, weight in spec["runs"]}
+def model_weight(model):
+    return MODEL_WEIGHTS.get(model, MODEL_WEIGHTS[FLASH[0]])
+SHORT = {OPUS[0]: "Opus", SOL[0]: "Sol", BRIDGE[0]: "Bridge", **{m: "Flash" for m in FLASH[:-1]}}
+PROBES = tuple(dict.fromkeys(OPUS + SOL + FLASH + (CHEAP[1],)))
+COSTS = {tier: spec["usd"] * COST_SAFETY for tier, spec in TIERS.items()}
 FLOOR_CREDIT = 2.00
 BINARY_CAP = 0.02
 SINGLE_CAP = 0.05

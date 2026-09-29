@@ -18,13 +18,15 @@ class Gate:
         self.posts = {}
         self.posted_order = []
         self.pending = set()
+        self.unfinished = {}
 
     def register(self, question, result):
-        validate.require(question, result.value, result.cdf)
+        validate.require(question, result.value, result.cdf, result.numeric_v1)
         if not result.comment.startswith("FBOT ") or len(result.comment) > 10000:
             raise SkipQuestion("INVALID_OUTPUT")
         with self.lock:
             self.results[question.qid] = (question, result)
+            self.unfinished[question.qid] = self.state.failures[question.qid]
             members = self.posts.setdefault(question.post_id, [])
             if question.qid not in members:
                 members.append(question.qid)
@@ -41,12 +43,20 @@ class Gate:
         raise SkipQuestion(reason)
 
     def read(self, question):
+        details = {}
         try:
-            found = self.readback(question.post_id, question.qid, self.env)
+            if self.readback is already_forecast:
+                found = self.readback(question.post_id, question.qid, self.env, details=details)
+            else:
+                found = self.readback(question.post_id, question.qid, self.env)
         except Exception:
             found = None
-        logger.info("READBACK qid=%s state=%s", question.qid,
-                    "found" if found is True else "none" if found is False else "unknown")
+        question.is_group = bool(details.get('group', question.is_group))
+        logger.info("READBACK qid=%s state=%s why=%s group=%s", question.qid,
+                    "found" if found is True else "none" if found is False else "unknown",
+                    details.get('why', 'shape' if found is None else 'ok'), int(question.is_group))
+        if found is None and question.is_group and question.target != 'test':
+            self.state.counts['readback_unknown_group'] += 1
         return found
 
     @staticmethod
@@ -105,8 +115,19 @@ class Gate:
                             self.block(qid, kind, "duplicate")
                         if result.deadline is not None and self.state.clock.monotonic() >= result.deadline:
                             self.block(qid, kind, "shape", "TOO_LATE")
-                        if question.target != "test" and not active(self.state.clock.now()):
+                        if question.target != "test" and not active(self.state.clock.now(), self.env):
                             self.block(qid, kind, "shape", "AFTER_SEASON")
+                        if question.target == "season":
+                            from .targets import season
+                            if not season(self.env).valid:
+                                self.state.alert("TARGET_MISMATCH")
+                                self.block(qid, kind, "target")
+                        if result.numeric_v1:
+                            incoming = entry.get('continuous_cdf')
+                            if (not isinstance(incoming, list) or len(incoming) != question.inbound_outcome_count + 1
+                                    or not all(validate.finite(value) for value in incoming)):
+                                self.block(qid, kind, 'shape')
+                            entry['continuous_cdf'] = list(result.cdf)
                         wanted = validate.payload(question, result)
                         for name, value in wanted.items():
                             if value is None:
@@ -151,10 +172,13 @@ class Gate:
                         if qid not in self.state.posted:
                             self.state.counts[question.target] += 1
                             self.posted_order.append(qid)
+                            self.state.remember('record_posted', question.target)
+                            self.state.remember('record_question', qid, question.target, self.state.clock.now())
                         self.state.posted.add(qid)
                     else:
                         self.state.commented.add(qid)
                         self.state.comment_failed.discard(qid)
+                        self.state.remember("clear_comment_failed", qid)
             if not self.state.comment_failed:
                 self.state.alerts.discard("COMMENT_FAILED")
 
@@ -177,7 +201,22 @@ class Gate:
             if question.qid not in self.state.commented:
                 with self.state.lock:
                     self.state.comment_failed.add(question.qid)
+                    self.state.remember('record_comment_failed', question.qid)
                 self.state.alert("COMMENT_FAILED")
+
+    def finish_poll(self, qids=None):
+        """Account once per registered attempt, including SDK publish exceptions."""
+        with self.lock:
+            for qid, previous_failures in list(self.unfinished.items()):
+                if qids is not None and qid not in qids:
+                    continue
+                if qid in self.pending:
+                    continue
+                if qid not in self.state.posted and self.state.failures[qid] == previous_failures:
+                    question, _ = self.results[qid]
+                    self.state.failure(qid, 'POST_FAILED')
+                    self.state.skip(question, 'POST_FAILED')
+                del self.unfinished[qid]
 
     def missing_comments(self):
         with self.lock:

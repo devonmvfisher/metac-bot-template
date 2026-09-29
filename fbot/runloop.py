@@ -70,7 +70,7 @@ async def run(forecast_on_tournament, state, clock, loop_minutes=45, poll_minute
 
 
 def should_dispatch(env, now):
-    return enabled(env, "BOT_ENABLED") and enabled(env, "CHAIN_ENABLED") and bool(active(now))
+    return enabled(env, "BOT_ENABLED") and enabled(env, "CHAIN_ENABLED") and bool(active(now, env))
 
 
 def dispatch_wait(job_start_epoch, now):

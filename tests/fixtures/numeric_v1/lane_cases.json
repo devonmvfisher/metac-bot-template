@@ -1,0 +1,190 @@
+{
+  "about": "All declared values and values in lines are SYNTHETIC test data, never forecasts. Cases cover heavy lower tails, an open log lower bound, thirty discrete outcomes, an open discrete point mass, percent signs and near ties.",
+  "cases": {
+    "lower_heavy": {
+      "question": "open_lower",
+      "declared": [
+        -280,
+        -220,
+        -180,
+        -140,
+        -95,
+        -65,
+        -45,
+        -30,
+        -12,
+        3,
+        15,
+        35,
+        75
+      ],
+      "expect": "ok",
+      "notes_include": [
+        "tail-cap"
+      ],
+      "notes_exclude": [
+        "fold-low"
+      ]
+    },
+    "log_lower_tail": {
+      "question": "log_open_lower",
+      "declared": [
+        0.05,
+        0.1,
+        0.2,
+        0.4,
+        0.8,
+        1.5,
+        3,
+        8,
+        25,
+        75,
+        150,
+        350,
+        800
+      ],
+      "expect": "ok",
+      "notes_include": [],
+      "notes_exclude": [
+        "fold-low"
+      ]
+    },
+    "thirty_ties": {
+      "question": "disc_thirty",
+      "declared": [
+        0,
+        0,
+        2,
+        4,
+        8,
+        13,
+        14,
+        14,
+        20,
+        23,
+        26,
+        28,
+        29
+      ],
+      "expect": "ok",
+      "notes_include": [
+        "tie-spread"
+      ],
+      "notes_exclude": [
+        "maxstep-pack",
+        "snap"
+      ]
+    },
+    "open_discrete_point": {
+      "question": "disc_fifty",
+      "declared": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "expect": "ok",
+      "notes_include": [
+        "tie-spread",
+        "maxstep-pack"
+      ],
+      "notes_exclude": [
+        "fold-high"
+      ]
+    },
+    "percent_text": {
+      "question": "shape_percent_900511",
+      "lines": [
+        "FINAL:",
+        "P1 = 1.5%",
+        "P2.5 = 2%",
+        "P5 = 2.5%",
+        "P10 = 3%",
+        "P20 = 3.4%",
+        "P40 = 3.8%",
+        "P50 = 4.1%",
+        "P60 = 4.4%",
+        "P80 = 4.9%",
+        "P90 = 5.3%",
+        "P95 = 5.8%",
+        "P97.5 = 6.2%",
+        "P99 = 6.8%"
+      ],
+      "expect": "ok",
+      "notes_include": [],
+      "notes_exclude": []
+    },
+    "near_tie_collision": {
+      "question": "closed_linear",
+      "declared": [
+        10,
+        20,
+        30,
+        40,
+        40.00000000001,
+        40.00000000002,
+        40.00000001,
+        55,
+        65,
+        75,
+        85,
+        90,
+        95
+      ],
+      "expect": "ok",
+      "notes_include": [
+        "tie-spread"
+      ],
+      "notes_exclude": []
+    },
+    "bad_log_domain": {
+      "question": "log_open_lower",
+      "declared": [
+        -0.1,
+        0.1,
+        0.2,
+        0.4,
+        0.8,
+        1.5,
+        3,
+        8,
+        25,
+        75,
+        150,
+        350,
+        800
+      ],
+      "expect": "domain",
+      "notes_include": [],
+      "notes_exclude": []
+    },
+    "percent_text_scale_error": {
+      "question": "shape_percent_900511",
+      "lines": [
+        "Percentile 1: 0.02%",
+        "Percentile 2.5: 0.024%",
+        "Percentile 5: 0.027%",
+        "Percentile 10: 0.03%",
+        "Percentile 20: 0.034%",
+        "Percentile 40: 0.038%",
+        "Percentile 50: 0.04%",
+        "Percentile 60: 0.042%",
+        "Percentile 80: 0.046%",
+        "Percentile 90: 0.05%",
+        "Percentile 95: 0.055%",
+        "Percentile 97.5: 0.06%",
+        "Percentile 99: 0.067%"
+      ],
+      "expect": "scale"
+    }
+  }
+}

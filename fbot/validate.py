@@ -115,16 +115,19 @@ def cdf_api(question, values, tol=1e-9):
     return r
 
 
-def require(question, value, outbound_cdf=None):
+def require(question, value, outbound_cdf=None, numeric_v1=False):
     valid = (binary(value) if question.kind == "binary" else
              multiple_choice(question, value) if question.kind == "multiple_choice" else
              cdf_api(question, outbound_cdf) is not None if question.kind in ("numeric", "discrete") else False)
+    if valid and numeric_v1:
+        from . import numeric
+        valid = numeric.check_strict(question, outbound_cdf)
     if not valid:
         raise SkipQuestion("INVALID_OUTPUT")
 
 
 def payload(question, result):
-    require(question, result.value, result.cdf)
+    require(question, result.value, result.cdf, result.numeric_v1)
     return {"probability_yes": result.value if question.kind == "binary" else None,
             "probability_yes_per_category": result.value if question.kind == "multiple_choice" else None,
             "continuous_cdf": result.cdf if question.kind in ("numeric", "discrete") else None}
