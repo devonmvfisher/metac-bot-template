@@ -1,4 +1,4 @@
-"""Prototype (Claude's scratch, not shipped): a Metaculus 429 on a POST is an outage, not a bad payload."""
+"""SEXTANT-POST429: a Metaculus 429 on a POST is an outage, not a bad payload."""
 import asyncio
 import unittest
 from unittest.mock import patch
