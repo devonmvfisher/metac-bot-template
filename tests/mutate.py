@@ -376,6 +376,31 @@ MUTATIONS.extend([
   'raw["transient"].items()', 'tests.test_r3_f09'),
 ])
 
+# SEXTANT-POST429: a Metaculus 429 is an outage, not a bad payload.
+MUTATIONS.extend([
+ ('p429_still_rejected', 'fbot/postgate.py', 'limited = status == 429  # P429B', 'limited = False  # P429B', 'tests.test_post429'),
+ ('p429_every_4xx_limited', 'fbot/postgate.py', 'limited = status == 429  # P429B', 'limited = 400 <= status <= 499  # P429B',
+  'tests.test_post429'),
+ ('p429_alert_ignores_flag', 'fbot/postgate.py', 'if 400 <= status <= 499 and not limited:', 'if 400 <= status <= 499:',
+  'tests.test_post429'),
+ ('p429_still_invalid_output', 'fbot/postgate.py', '                    elif 400 <= status <= 499:\n',
+  '                    if 400 <= status <= 499:\n', 'tests.test_post429'),
+ ('p429_not_marked', 'fbot/postgate.py', 'self.rate_limited.add(qid)  # P429C', 'pass  # P429C', 'tests.test_post429'),
+ ('p429_finish_ignores_mark', 'fbot/postgate.py', 'if qid in self.rate_limited:  # P429D', 'if False:  # P429D', 'tests.test_post429'),
+ ('p429_mark_never_cleared', 'fbot/postgate.py', '                self.rate_limited.discard(qid)\n', '', 'tests.test_post429'),
+ ('p429_log_line_removed', 'fbot/postgate.py', 'logger.info("POST_RATE_LIMITED qid=%s kind=%s", qid, kind)', 'pass',
+  'tests.test_post429'),
+ ('p429_count_removed', 'fbot/postgate.py', 'self.state.counts["post_rate_limited"] += 1', 'pass', 'tests.test_post429'),
+ ('p429_no_transient_rule', 'fbot/state.py', 'if reason == "POST_RATE_LIMITED":  # P429A', 'if False:  # P429A', 'tests.test_post429'),
+ ('p429_two_day_memory', 'fbot/state.py', 'reason = "MODEL_TRANSIENT"  # a Metaculus 429', 'reason = "POST_FAILED"  # a Metaculus 429',
+  'tests.test_post429'),
+ ('p429_reason_unknown', 'fbot/__init__.py', '    "POST_RATE_LIMITED",\n', '', 'tests.test_post429'),
+ ('p429_retry_readback_benched', 'fbot/postgate.py', 'if qid in self.rate_limited:  # P429E', 'if False:  # P429E',
+  'tests.test_post429'),
+ ('p429_any_readback_transient', 'fbot/postgate.py', 'if qid in self.rate_limited:  # P429E', 'if True:  # P429E',
+  'tests.test_post429'),
+])
+
 
 def main():
     parser = argparse.ArgumentParser()

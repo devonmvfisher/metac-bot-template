@@ -19,6 +19,7 @@ class Gate:
         self.posted_order = []
         self.pending = set()
         self.unfinished = {}
+        self.rate_limited = set()
 
     def register(self, question, result):
         validate.require(question, result.value, result.cdf, result.numeric_v1)
@@ -104,6 +105,8 @@ class Gate:
                         if found is True:
                             self.block(qid, kind, "duplicate")
                         if found is None:
+                            if qid in self.rate_limited:  # P429E
+                                self.block(qid, kind, "readback", "POST_RATE_LIMITED")
                             self.block(qid, kind, "readback")
             with self.lock:
                 if forecast:
@@ -158,14 +161,21 @@ class Gate:
             return
         kind, ids = ticket
         with self.lock, self.state.lock:
-            if 400 <= status <= 499:
+            limited = status == 429  # P429B
+            if 400 <= status <= 499 and not limited:
                 self.state.alert("API_REJECTED")
+            if limited:
+                for qid in ids:
+                    self.state.counts["post_rate_limited"] += 1
+                    logger.info("POST_RATE_LIMITED qid=%s kind=%s", qid, kind)
             for qid in ids:
                 question, _ = self.results[qid]
                 if kind == "forecast":
                     self.pending.discard(qid)
                     self.state.http_status[qid] = status
-                    if 400 <= status <= 499:
+                    if limited:
+                        self.rate_limited.add(qid)  # P429C
+                    elif 400 <= status <= 499:
                         self.state.failure(qid, "INVALID_OUTPUT")
                 if 200 <= status < 300:
                     if kind == "forecast":
@@ -214,8 +224,13 @@ class Gate:
                     continue
                 if qid not in self.state.posted and self.state.failures[qid] == previous_failures:
                     question, _ = self.results[qid]
-                    self.state.failure(qid, 'POST_FAILED')
-                    self.state.skip(question, 'POST_FAILED')
+                    if qid in self.rate_limited:  # P429D
+                        self.state.failure(qid, 'POST_RATE_LIMITED')
+                        self.state.skip(question, 'POST_RATE_LIMITED')
+                    else:
+                        self.state.failure(qid, 'POST_FAILED')
+                        self.state.skip(question, 'POST_FAILED')
+                self.rate_limited.discard(qid)
                 del self.unfinished[qid]
 
     def missing_comments(self):

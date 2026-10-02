@@ -142,6 +142,8 @@ class RunState:
         self.remember('record_question', question.qid, question.target, self.clock.now(), reason)
 
     def failure(self, qid, reason):
+        if reason == "POST_RATE_LIMITED":  # P429A
+            reason = "MODEL_TRANSIENT"  # a Metaculus 429 is an outage, not the question: the F09 rule applies
         weight = {"INVALID_OUTPUT": 2, "ALL_MODELS_FAILED": 1, "MISREAD_ALL": 1, "POST_FAILED": 1,
                   "MODEL_TRANSIENT": 1}.get(reason, 0)
         with self.lock:
