@@ -12,7 +12,7 @@ permissions:
   issues: write
 jobs:
   forecast_job:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 70
     steps:
       - name: Mark job start
@@ -72,6 +72,8 @@ jobs:
           LOOP_MINUTES: ${{ vars.LOOP_MINUTES }}
           POLL_MINUTES: ${{ vars.POLL_MINUTES }}
           MINIBENCH_MODE: ${{ vars.MINIBENCH_MODE }}
+          MINIBENCH_PRESET: ${{ vars.MINIBENCH_PRESET }}
+          MINIBENCH_FLOOR_USD: ${{ vars.MINIBENCH_FLOOR_USD }}
           MODEL_PRESET: ${{ vars.MODEL_PRESET }}
           PRESET_RESERVE_USD: ${{ vars.PRESET_RESERVE_USD }}
           SKIP_WITHOUT_RESEARCH: ${{ vars.SKIP_WITHOUT_RESEARCH }}

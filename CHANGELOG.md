@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-01 - v1.1
+
+config.VERSION stays "v1", so the dry run stays byte-identical; runs are told apart by commit sha.
+
+Workflows: every job runs on ubuntu-24.04 instead of ubuntu-latest, which GitHub moves to Ubuntu 26 from 2026-10-19. Today's ubuntu-latest is already 24.04, so nothing changes until then. The two posting workflows also pass MINIBENCH_PRESET and MINIBENCH_FLOOR_USD (blank unless set).
+
 ## 2026-09-28 - v1-r3
 
 Terms rebuild. Every request the bot's own code makes (market APIs, robots.txt, resolution pages, model calls, Metaculus reads and posts, GitHub) now sends the User-Agent SextantBot/1.0 with the repository URL as the contact; it replaces the R25 Sextant/0.2 default. Requests made inside the forecasting-tools and AskNews SDKs keep their library User-Agent. No module may fetch kalshi.com, stlouisfed.org or unhcr.org: the shared reader refuses them on every redirect hop, before any address lookup. The resolution-page reader reads cleared hosts only (federalreserve.gov, bls.gov), always skips metaculus.com, kalshi.com, polymarket.com, manifold.markets, stlouisfed.org and unhcr.org, and refuses a redirect or robots.txt that leaves a cleared host. Kalshi is removed from the market reader. Polymarket and Manifold are each off unless their own repository variable (POLYMARKET_ENABLED, MANIFOLD_ENABLED) is true; MARKETS_ENABLED stays the master switch, and the three bot workflows pass both variables. Third-party test fixtures are now synthetic, except the BLS and Federal Reserve Board pages, which carry a source credit (one third-party script in the Board page is replaced with a synthetic one). F09: when every model fails with no reply, 408, 429 or a 5xx, the skip reason is MODEL_TRANSIENT; the question is still capped for the rest of that run, but it stays out of the 2-day failure memory, and after 3 such runs within 3 hours it sits out until 3 hours after the last one. Every other failure keeps the 2-day memory. main.py is unchanged.
