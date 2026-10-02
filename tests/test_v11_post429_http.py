@@ -179,6 +179,16 @@ class Post429HttpTests(unittest.TestCase):
         self.assertEqual(run.book.transient_runs(run.question.qid, run.clock.now()), 0)
         self.assertNotIn("post_rate_limited", run.state.snapshot()["counts"])
 
+    def test_H07_runbook_says_a_throttle_is_not_a_rollback(self):
+        from pathlib import Path
+        runbook = (Path(__file__).resolve().parents[1] / "RUNBOOK.md").read_text(encoding="utf-8")
+        row = next(line for line in runbook.splitlines() if line.startswith("| GATE_BLOCKED |"))
+        for words in ("rule=readback", "POST_RATE_LIMITED", "why=rate_limited", "not a rollback trigger",
+                      "close the GATE_BLOCKED issue"):
+            self.assertIn(words, row)
+        api = next(line for line in runbook.splitlines() if line.startswith("| API_REJECTED |"))
+        self.assertIn("never raises it", api)
+
 
 if __name__ == "__main__":
     unittest.main()

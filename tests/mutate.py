@@ -402,6 +402,39 @@ MUTATIONS.extend([
 ])
 
 
+# v1.1: MiniBench dial, runner pin, dial wiring and the throttle runbook line.
+MUTATIONS.extend([
+ ('v11_dial_skip_not_a_mode', 'fbot/budget.py', 'if mode not in ("always", "slack", "off", "skip"):', 'if mode not in ("always", "slack", "off"):', 'tests.test_minibench_dial'),
+ ('v11_dial_skip_ignored', 'fbot/budget.py', '    if target == "minibench" and mode == "skip":\n', '    if False:\n', 'tests.test_minibench_dial'),
+ ('v11_dial_skip_hits_season', 'fbot/budget.py', '    if target == "minibench" and mode == "skip":\n', '    if mode == "skip":\n', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_ignored', 'fbot/budget.py', 'and (credit is None or credit < mini_floor):  # MBD1', 'and False:  # MBD1', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_unknown_credit_runs', 'fbot/budget.py', '(credit is None or credit < mini_floor)', '(credit is not None and credit < mini_floor)', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_inclusive', 'fbot/budget.py', '(credit is None or credit < mini_floor)', '(credit is None or credit <= mini_floor)', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_hits_season', 'fbot/budget.py', 'question.target == "minibench" and mini_floor is not None', 'mini_floor is not None', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_not_parsed', 'fbot/budget.py', '        state.minibench_floor_usd = floor\n', '        state.minibench_floor_usd = None\n', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_negative_accepted', 'fbot/budget.py', 'if not math.isfinite(floor) or floor < 0:', 'if not math.isfinite(floor):', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_bad_not_counted', 'fbot/budget.py', '                state.counts["minibench_floor_invalid"] += 1\n', '', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_bad_no_alert', 'fbot/budget.py', 'warning("CONFIG MINIBENCH_FLOOR_USD invalid; using no floor")\n                state.alert("PRESET_CONFIG_INVALID")', 'warning("CONFIG MINIBENCH_FLOOR_USD invalid; using no floor")', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_ignored', 'fbot/budget.py', '                tier = mini\n', '                pass\n', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_reserve_ignored', 'fbot/budget.py', 'and credit >= FLOOR_CREDIT + self.state.preset_reserve_usd + costs[mini]):  # MBD2', 'and True):  # MBD2', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_cost_ignored', 'fbot/budget.py', '+ costs[mini]):  # MBD2', '):  # MBD2', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_hits_season', 'fbot/budget.py', 'question.target == "minibench" and mini in', 'question.target in ("season", "minibench") and mini in', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_invalid_accepted', 'fbot/budget.py', '        if mini not in ("AUTO", "A", "B", "C"):\n', '        if False:\n', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_bad_not_counted', 'fbot/budget.py', '            state.counts["minibench_preset_invalid"] += 1\n', '', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_not_upper', 'fbot/budget.py', '(env.get("MINIBENCH_PRESET") or "auto").strip().upper()', '(env.get("MINIBENCH_PRESET") or "auto").strip()', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_unknown_credit', 'fbot/budget.py', 'and eligible and credit is not None', 'and eligible', 'tests.test_minibench_dial'),
+ ('v11_dial_floor_undocumented', 'RUNBOOK.md', '| MINIBENCH_FLOOR_USD |', '| MB_FLOOR |', 'tests.test_minibench_dial'),
+ ('v11_pin_review_bot', '.github/workflows/review_bot.yaml', 'runs-on: ubuntu-24.04', 'runs-on: ubuntu-latest', 'tests.test_v11_workflows'),
+ ('v11_pin_metaculus_cup', '.github/workflows/run_bot_on_metaculus_cup.yaml', 'runs-on: ubuntu-24.04', 'runs-on: ubuntu-latest', 'tests.test_v11_workflows'),
+ ('v11_pin_timer', '.github/workflows/run_bot_on_timer.yaml', 'runs-on: ubuntu-24.04', 'runs-on: ubuntu-latest', 'tests.test_v11_workflows'),
+ ('v11_pin_tournament', '.github/workflows/run_bot_on_tournament.yaml', 'runs-on: ubuntu-24.04', 'runs-on: ubuntu-latest', 'tests.test_v11_workflows'),
+ ('v11_pin_test_bot', '.github/workflows/test_bot.yaml', 'runs-on: ubuntu-24.04', 'runs-on: ubuntu-latest', 'tests.test_v11_workflows'),
+ ('v11_dial_preset_unwired', '.github/workflows/run_bot_on_tournament.yaml', 'MINIBENCH_PRESET: ${{ vars.MINIBENCH_PRESET }}', 'MINIBENCH_PRESET: ${{ vars.UNRELATED }}', 'tests.test_v11_workflows'),
+ ('v11_dial_floor_unwired', '.github/workflows/run_bot_on_timer.yaml', '          MINIBENCH_FLOOR_USD: ${{ vars.MINIBENCH_FLOOR_USD }}\n', '', 'tests.test_v11_workflows'),
+ ('v11_runbook_throttle_exception_removed', 'RUNBOOK.md', 'is a Metaculus throttle, not a code fault and not a rollback trigger.', 'is a fault.', 'tests.test_v11_post429_http'),
+])
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tmp", required=True)

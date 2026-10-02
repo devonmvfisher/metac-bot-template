@@ -30,7 +30,7 @@ _mode_lock = threading.Lock()
 def normalize_mode(mode):
     global _mode_warned
     mode = (mode or "always").strip().lower()
-    if mode not in ("always", "slack", "off"):
+    if mode not in ("always", "slack", "off", "skip"):
         with _mode_lock:
             if not _mode_warned:
                 logging.getLogger("fbot").warning("CONFIG MINIBENCH_MODE invalid; using always")
@@ -42,6 +42,8 @@ def normalize_mode(mode):
 def choose(now, remaining, target, mode="always", costs=None):
     costs = COSTS if costs is None else costs
     mode = normalize_mode(mode)
+    if target == "minibench" and mode == "skip":
+        raise SkipQuestion("BUDGET_MINIBENCH")
     season = remaining_season(now)
     if remaining is None:
         if target == "minibench" and mode != "always":
@@ -81,6 +83,27 @@ def configure_preset(env, state):
             state.counts["preset_reserve_invalid"] += 1
             state.alert("PRESET_CONFIG_INVALID")
         state.preset_reserve_usd = reserve
+        # MiniBench dial: blank values keep the auto MiniBench rule (and MINIBENCH_MODE) unchanged.
+        mini = (env.get("MINIBENCH_PRESET") or "auto").strip().upper() or "AUTO"
+        if mini not in ("AUTO", "A", "B", "C"):
+            mini = "AUTO"
+            state.counts["minibench_preset_invalid"] += 1
+            logging.getLogger("fbot").warning("CONFIG MINIBENCH_PRESET invalid; using auto")
+            state.alert("PRESET_CONFIG_INVALID")
+        state.minibench_preset = None if mini == "AUTO" else mini
+        raw = (env.get("MINIBENCH_FLOOR_USD") or "").strip()
+        floor = None
+        if raw:
+            try:
+                floor = float(raw)
+                if not math.isfinite(floor) or floor < 0:
+                    raise ValueError()
+            except (TypeError, ValueError):
+                floor = None
+                state.counts["minibench_floor_invalid"] += 1
+                logging.getLogger("fbot").warning("CONFIG MINIBENCH_FLOOR_USD invalid; using no floor")
+                state.alert("PRESET_CONFIG_INVALID")
+        state.minibench_floor_usd = floor
 
 
 def log_preset(state):
@@ -167,6 +190,9 @@ class Pacer:
             balances = [available.get(provider) for provider in (eligible or choices)]
             # Each key retains its own floor when the pacer combines credit.
             credit = None if any(value is None for value in balances) else sum(max(0, value - FLOOR_CREDIT) for value in balances) + FLOOR_CREDIT
+            mini_floor = getattr(self.state, "minibench_floor_usd", None)
+            if question.target == "minibench" and mini_floor is not None and (credit is None or credit < mini_floor):  # MBD1
+                raise SkipQuestion("BUDGET_MINIBENCH")
             try:
                 tier = choose(self.clock.now(), credit, question.target,
                               self.env.get("MINIBENCH_MODE") or "always", costs)
@@ -182,6 +208,10 @@ class Pacer:
             if (question.target == "season" and preset in ("A", "B", "C") and credit is not None
                     and credit - FLOOR_CREDIT >= self.state.preset_reserve_usd + costs[preset]):
                 tier = preset
+            mini = getattr(self.state, "minibench_preset", None)
+            if (question.target == "minibench" and mini in ("A", "B", "C") and eligible and credit is not None
+                    and credit >= FLOOR_CREDIT + self.state.preset_reserve_usd + costs[mini]):  # MBD2
+                tier = mini
             if question.target == "test" and preset in ("A", "B", "C"):
                 tier = preset
             if fast:

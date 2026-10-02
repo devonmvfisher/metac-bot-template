@@ -66,6 +66,8 @@ class RunState:
         self.model_preset = None
         self.preset_reserve_usd = 10.0
         self.preset_tiers = set()
+        self.minibench_preset = None
+        self.minibench_floor_usd = None
         self.book = None
         self.without_modules = set()
         self.numeric_enabled = None
