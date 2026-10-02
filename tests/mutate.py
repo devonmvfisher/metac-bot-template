@@ -376,6 +376,17 @@ MUTATIONS.extend([
   'raw["transient"].items()', 'tests.test_r3_f09'),
 ])
 
+# v1.1 review fixes for POST429 (REVIEW-1 finding 2, the panel's T9 burn bound, runbook throttle rules).
+MUTATIONS.extend([
+ ('v11r_late_after_429_double_skip', 'fbot/postgate.py', '"POST_RATE_LIMITED" if qid in self.rate_limited else "TOO_LATE")  # P429G', '"TOO_LATE")  # P429G', 'tests.test_v11_review_post429'),
+ ('v11r_late_always_throttle', 'fbot/postgate.py', '"POST_RATE_LIMITED" if qid in self.rate_limited else "TOO_LATE")  # P429G', '"POST_RATE_LIMITED")  # P429G', 'tests.test_v11_review_post429'),
+ ('v11r_burn_unbounded', 'fbot/postgate.py', "                        self.state.failure(qid, 'POST_RATE_LIMITED')\n", '', 'tests.test_v11_review_post429'),
+ ('v11r_burn_two_day_park', 'fbot/state.py', 'reason = "MODEL_TRANSIENT"  # a Metaculus 429', 'reason = "INVALID_OUTPUT"  # a Metaculus 429', 'tests.test_v11_review_post429'),
+ ('v11r_runbook_shape_exception_removed', 'RUNBOOK.md', 'or `rule=shape` (the post deadline passed while the SDK waited after a 429)', '', 'tests.test_v11_review_post429'),
+ ('v11r_runbook_comment_exception_removed', 'RUNBOOK.md', 'it is a Metaculus throttle and not a rollback trigger: the forecast is posted', 'ask a helper: the forecast is posted', 'tests.test_v11_review_post429'),
+ ('v11r_runbook_burn_unstated', 'RUNBOOK.md', 'up to about 34 paid tries a day for a season question', 'some paid tries', 'tests.test_v11_review_post429'),
+])
+
 # SEXTANT-POST429: a Metaculus 429 is an outage, not a bad payload.
 MUTATIONS.extend([
  ('p429_still_rejected', 'fbot/postgate.py', 'limited = status == 429  # P429B', 'limited = False  # P429B', 'tests.test_post429'),

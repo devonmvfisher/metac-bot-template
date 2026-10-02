@@ -117,7 +117,7 @@ class Gate:
                         if qid in self.state.posted or qid in self.pending or qid in ids:
                             self.block(qid, kind, "duplicate")
                         if result.deadline is not None and self.state.clock.monotonic() >= result.deadline:
-                            self.block(qid, kind, "shape", "TOO_LATE")
+                            self.block(qid, kind, "shape", "POST_RATE_LIMITED" if qid in self.rate_limited else "TOO_LATE")  # P429G
                         if question.target != "test" and not active(self.state.clock.now(), self.env):
                             self.block(qid, kind, "shape", "AFTER_SEASON")
                         if question.target == "season":
