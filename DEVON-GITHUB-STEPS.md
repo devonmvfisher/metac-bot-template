@@ -8,9 +8,9 @@
 - BOT_ENABLED = false. Enables tournament forecasting. Preserve the existing live setting while testing v1-test; a new fork stays false until review and Test Bot pass.
 - CHAIN_ENABLED = false. Queues the next tournament run after every active run. CLI failure gets one REST retry.
 - USE_OPENAI_BRIDGE = false. Allows the existing direct OpenAI bridge for season questions; MiniBench never uses it.
-- MINIBENCH_MODE = always. always selects C; slack reserves season coverage; off reserves the season budget. Before a budget skip, the Flash floor may still run M if sponsored credit covers it. skip (v1.1) never forecasts MiniBench.
-- MINIBENCH_PRESET = blank. Blank keeps the MINIBENCH_MODE rule; A, B or C runs MiniBench at that tier above the same reserve as MODEL_PRESET. Set it only to the value Claude gives you.
-- MINIBENCH_FLOOR_USD = blank. Blank means no floor; a number skips MiniBench whenever credit is below it. Set it only to the value Claude gives you.
+- MINIBENCH_MODE = always. always selects C; slack reserves season coverage; off reserves the season budget. Before a budget skip, the Flash floor may still run M if sponsored credit covers it. skip (v1.1) never forecasts MiniBench. Type skip exactly; any other value runs as always and raises PRESET_CONFIG_INVALID.
+- MINIBENCH_PRESET = blank. Blank keeps the MINIBENCH_MODE rule; A, B or C runs MiniBench at that tier above the same reserve as MODEL_PRESET. Set it only to the value Claude gives you, and never without MINIBENCH_FLOOR_USD.
+- MINIBENCH_FLOOR_USD = blank. Blank means no floor; a number skips MiniBench whenever credit is below it. Set it only to the value Claude gives you. 0 is not blank: it skips MiniBench whenever credit is unknown.
 - MODEL_PRESET = auto. auto uses the pacer. A/B/C override season pacing only above the reserve. The fast path wins with M. MiniBench ignores the preset.
 - PRESET_RESERVE_USD = 10. Extra dollars above the per-key 2-dollar floor and pending reservations, plus the selected tier cost. Invalid values use 10.
 - BUDGET_CAP_USD = blank. The sponsored key's total lifetime US-dollar allowance; leave blank until Claude gives you the number; a variable never holds a key.

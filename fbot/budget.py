@@ -104,6 +104,10 @@ def configure_preset(env, state):
                 logging.getLogger("fbot").warning("CONFIG MINIBENCH_FLOOR_USD invalid; using no floor")
                 state.alert("PRESET_CONFIG_INVALID")
         state.minibench_floor_usd = floor
+        raw_mode = (env.get("MINIBENCH_MODE") or "").strip().lower() or "always"
+        if normalize_mode(raw_mode) != raw_mode:  # R2F1: a mistyped brake must not run silently as always
+            state.counts["minibench_mode_invalid"] += 1
+            state.alert("PRESET_CONFIG_INVALID")  # R2F1
 
 
 def log_preset(state):

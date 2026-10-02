@@ -181,5 +181,41 @@ class DialTests(unittest.TestCase):
         self.assertIn("MINIBENCH_FLOOR_USD", alert_row)
 
 
+    def test_D10_mistyped_minibench_mode_alerts_and_keeps_always(self):
+        import fbot.budget as budget
+        baseline_season = make(73.45)[0].tier(self.season)
+        for value in ("skipp", "skip-all", "stop", "none", "disabled", "false", "0", "skip minibench", "alway"):
+            with self.subTest(value=value):
+                budget._mode_warned = False
+                with self.assertLogs("fbot", "WARNING") as logs:
+                    pacer, state = make(73.45, MINIBENCH_MODE=value)
+                self.assertIn("PRESET_CONFIG_INVALID", state.alerts)
+                self.assertEqual(state.counts["minibench_mode_invalid"], 1)
+                self.assertEqual(pacer.tier(self.mini), "C")   # falls back to always, exactly as v1-r3 does
+                self.assertEqual(make(73.45, MINIBENCH_MODE=value)[0].tier(self.season), baseline_season)
+                text = "\n".join(logs.output)
+                self.assertIn("CONFIG MINIBENCH_MODE invalid; using always", text)
+                if len(value) >= 4:
+                    self.assertNotIn(value, text.replace("MINIBENCH_MODE", "").replace("always", ""))
+        for value in (None, "", "  ", "always", " Always ", "slack", "off", "OFF", "skip", " SKIP "):
+            with self.subTest(valid=value):
+                _, state = make(73.45, MINIBENCH_MODE=value)
+                self.assertNotIn("PRESET_CONFIG_INVALID", state.alerts)
+                self.assertEqual(state.counts["minibench_mode_invalid"], 0)
+
+    def test_D11_docs_say_how_to_set_the_dial_safely(self):
+        runbook = (ROOT / "RUNBOOK.md").read_text(encoding="utf-8").splitlines()
+        steps = (ROOT / "DEVON-GITHUB-STEPS.md").read_text(encoding="utf-8").splitlines()
+        row = lambda name: next(line for line in runbook if line.startswith("| " + name + " |"))
+        step = lambda name: next(line for line in steps if line.startswith("- " + name + " = "))
+        self.assertIn("raises PRESET_CONFIG_INVALID", row("MINIBENCH_MODE"))
+        self.assertIn("Never set it without MINIBENCH_FLOOR_USD", row("MINIBENCH_PRESET"))
+        self.assertIn("0 is not the same as blank", row("MINIBENCH_FLOOR_USD"))
+        self.assertIn("MINIBENCH_MODE (always, slack, off or skip; invalid uses always)", row("PRESET_CONFIG_INVALID"))
+        self.assertIn("that variable is the bad one", row("PRESET_CONFIG_INVALID"))
+        self.assertIn("Type skip exactly", step("MINIBENCH_MODE"))
+        self.assertIn("never without MINIBENCH_FLOOR_USD", step("MINIBENCH_PRESET"))
+        self.assertIn("0 is not blank", step("MINIBENCH_FLOOR_USD"))
+
 if __name__ == "__main__":
     unittest.main()

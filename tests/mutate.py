@@ -445,6 +445,16 @@ MUTATIONS.extend([
  ('v11_runbook_throttle_exception_removed', 'RUNBOOK.md', 'is a Metaculus throttle, not a code fault and not a rollback trigger.', 'is a fault.', 'tests.test_v11_post429_http'),
 ])
 
+# v1.1 review fix for the dial (REVIEW-2 B1: a mistyped MINIBENCH_MODE must not run silently as always).
+MUTATIONS.extend([
+ ('v11_dial_mode_bad_no_alert', 'fbot/budget.py', '            state.alert("PRESET_CONFIG_INVALID")  # R2F1\n', '', 'tests.test_minibench_dial'),
+ ('v11_dial_mode_bad_not_counted', 'fbot/budget.py', '            state.counts["minibench_mode_invalid"] += 1\n', '', 'tests.test_minibench_dial'),
+ ('v11_dial_mode_valid_alerts', 'fbot/budget.py', 'if normalize_mode(raw_mode) != raw_mode:  # R2F1', 'if True:  # R2F1', 'tests.test_minibench_dial'),
+ ('v11_dial_mode_case_alerts', 'fbot/budget.py', '(env.get("MINIBENCH_MODE") or "").strip().lower() or "always"', '(env.get("MINIBENCH_MODE") or "").strip() or "always"', 'tests.test_minibench_dial'),
+ ('v11_dial_preset_floor_rule_removed', 'RUNBOOK.md', ' Never set it without MINIBENCH_FLOOR_USD:', ' Set it with care:', 'tests.test_minibench_dial'),
+ ('v11_dial_steps_floor_rule_removed', 'DEVON-GITHUB-STEPS.md', ', and never without MINIBENCH_FLOOR_USD.', '.', 'tests.test_minibench_dial'),
+])
+
 
 def main():
     parser = argparse.ArgumentParser()
