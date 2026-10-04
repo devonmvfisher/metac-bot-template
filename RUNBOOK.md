@@ -28,9 +28,9 @@ Settings > Secrets and variables > Actions > Variables. Empty values use default
 | PROMPTS_V1 | true | Per-run prompts, guarded evidence and misread checks. Set it to false (2 min) for the legacy prompt route. |
 | DAILY_PROBE | true | Bounded model probes after polling and comment retries. Set it to false (2 min) to disable. |
 | CONCURRENT_TARGETS | true | Season and MiniBench poll concurrently with shared process limits. Set it to false (2 min) for sequential polling. |
-| ASKNEWS_PARITY | false | EDGE-2: article dates in UTC and source names. Leave unset until Claude writes EDGE-2 approved. |
-| ASKNEWS_ARCHIVE | false | EDGE-2: season archive search requires parity and a loaded ledger; stops before monthly credits exceed 900. Recent queries continue. Leave unset until Claude writes EDGE-2 approved. |
-| DEADLINE_SHIFT | false | EDGE-2: registered season yes/no titles get odds multiplied by 0.8 before caps. Leave unset until Claude writes EDGE-2 approved. |
+| ASKNEWS_PARITY | false | EDGE-2: article dates in UTC and source names. Leave unset for the Fall 2026 season (EDGE-2 decision, Sep 29). |
+| ASKNEWS_ARCHIVE | false | EDGE-2: season archive search requires parity and a loaded ledger; stops before monthly credits exceed 900. Recent queries continue. Leave unset for the Fall 2026 season (EDGE-2 decision, Sep 29). |
+| DEADLINE_SHIFT | false | EDGE-2: registered season yes/no titles get odds multiplied by 0.8 before caps. Leave unset for the Fall 2026 season (EDGE-2 decision, Sep 29). |
 | SEASON_ID | 33121 | Explicit season tournament ID; validate it with slug and end time. |
 | SEASON_SLUG | fall-futureeval-2026 | Explicit season slug; never use a current-tournament alias. |
 | SEASON_END_UTC | 2027-01-07T00:00:00Z | Stops forecasting, chaining and heartbeat at the season boundary. |

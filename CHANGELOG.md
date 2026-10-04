@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-04 - docs
+
+Public description corrected: no closed-question test was run. README now opens with the live record, the test basis and known limits. EDGE-2 switches recorded as off for the season. Settings changed late on 2026-10-03, Central time (early 2026-10-04 UTC), and first read by run 220: BUDGET_CAP_USD=128; MINIBENCH_PRESET=A; MINIBENCH_FLOOR_USD=65; PRESET_RESERVE_USD=10. No code change.
+
+Release plan: no new features from 2026-10-04 to 2026-10-09. After that Sextant keeps improving in dated releases, at most one every two weeks, built only from closed or resolved questions and test questions. Settings (spend tier, MiniBench on or off, stop switches) can change at any time. Every change is dated in this changelog.
+
 ## 2026-10-01 - v1.1
 
 config.VERSION stays "v1", so the dry run stays byte-identical; runs are told apart by commit sha.
