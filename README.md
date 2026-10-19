@@ -4,11 +4,13 @@ Sextant is an autonomous forecasting bot entered in Metaculus's Fall 2026 AI for
 
 **Live record, as of 2026-10-04:** running since 2026-09-27, each run starting the next. 194 runs completed and 0 failed (29 scheduled starts were cancelled by design because a run was already going). 8 season forecasts posted (6 of them since per-run counts began, each read back and commented); 0 blocked by the post gate. Every run ends with a counts-only `SEXTANT_VITALS v1` notice, a check-run annotation that GitHub's public API serves without sign-in: questions open, seen, posted and skipped with reasons, model calls and spend. Its own log lines are built to carry counts, not forecast values (a scan of a real run log is still to be done), and nobody looks at forecasts while questions are open.
 
+**Still running on 2026-10-16:** at 20:10 CT, GitHub's public Actions API listed 644 workflow runs for this repo; the four newest finished forecast runs had succeeded, and a fifth was running. The counts above are from 2026-10-04 and are not updated automatically.
+
 **What was tested, and what was not:** 574 offline tests pass and 296 of 296 planted bugs are caught on this version (standard library only, no network, about 35 seconds). Test Bot runs posted to Metaculus test questions on 2026-10-02 (presets A and C, 8 forecasts each, all read back). Sextant was never run on past (closed) tournament questions, so its accuracy is unknown until this season's questions resolve. The entry form said it would be tested on about 100 closed Summer 2026 questions; that test was not run.
 
-**Known limits:** accuracy is unknown until questions resolve; date and conditional questions are not supported; it forecasts MiniBench only while credit stays above a set floor, and that path first runs live when round 1 opens (2026-10-05 00:00 UTC).
+**Known limits:** accuracy is unknown until questions resolve; date and conditional questions are not supported; it forecasts MiniBench only while credit stays above a set floor, and that path was due to run live from round 1 (2026-10-05 00:00 UTC); its record since then is not written here yet.
 
-**Reading the repo:** lines in main.py marked `GLUE (NOT EXECUTED offline)` are live SDK calls the offline suite cannot exercise; they run on every live run. main_with_no_framework.py and integrations/ come from the Metaculus template and are not used. DEVON-GITHUB-STEPS.md is the owner's setup checklist. Every change is dated in CHANGELOG.md.
+**Reading the repo:** lines in main.py marked `GLUE (NOT EXECUTED offline)` are live SDK calls the offline suite cannot exercise; they run on every live run. main_with_no_framework.py and integrations/ come from the Metaculus template and are not used. DEVON-GITHUB-STEPS.md is the owner's setup checklist. Every change is dated in CHANGELOG.md. Most of the code was written by AI coding agents (Anthropic's Claude and OpenAI's Codex) for the owner; other AI agents and the offline tests checked it. The 15 commits under the owner's name from 27 and 28 September carry no co-author line: they were his web uploads of files the agents wrote.
 
 ## Operator notes
 
