@@ -14,7 +14,7 @@ class ReleaseTests(unittest.TestCase):
         for path in [ROOT / "main.py", *sorted((ROOT / "fbot").glob("*.py"))]:
             ast.parse(path.read_text(encoding="utf-8"), feature_version=(3, 11))
         for path in ROOT.rglob("*"):
-            if path.is_file() and "__pycache__" not in path.parts:
+            if path.is_file() and "__pycache__" not in path.parts and ".git" not in path.parts:
                 self.assertNotIn(b"\r\n", path.read_bytes(), str(path.relative_to(ROOT)))
 
     def test_dependency_hashes_and_git_blobs(self):

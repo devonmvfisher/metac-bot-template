@@ -133,7 +133,7 @@ class CreditTierTests(unittest.TestCase):
         self.assertEqual({tier: len(config.SLOTS[tier]) for tier in ("A", "B", "C", "M")}, {"A": 5, "B": 4, "C": 3, "M": 3})
         self.assertEqual(config.SLOTS["A"], (config.OPUS, config.OPUS, config.SOL, config.SOL, config.FLASH))
         self.assertEqual(config.SLOTS["B"], (config.OPUS, config.SOL, config.FLASH, config.FLASH))
-        self.assertEqual(config.FLASH[-1], config.SOL[0])
+        self.assertEqual(config.FLASH[-len(config.SOL):], config.SOL)
         self.assertNotIn("S", config.TIERS)
         for tier, base in (("A", 1.2), ("B", .77), ("C", .36), ("M", .24)):
             self.assertAlmostEqual(config.COSTS[tier], base * 1.5)

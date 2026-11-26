@@ -51,7 +51,7 @@ class ClientBudgetTests(unittest.TestCase):
             self.assertEqual(len(fake.calls), 4)
 
     def test_429_fallback_and_no_retry_auth(self):
-        fake = FakeLLM({SOL[0]: [(429, {})]})
+        fake = FakeLLM({m: [(429, {})] for m in SOL})
         client = self.setup_client(fake)
         self.assertEqual(client.slot(SOL + FLASH, "q")[1], FLASH[0])
         for code in (401, 403):

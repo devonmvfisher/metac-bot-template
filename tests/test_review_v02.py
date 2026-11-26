@@ -116,14 +116,14 @@ class ReviewTests(unittest.TestCase):
         def opened(request, **kwargs):
             model = json.loads(request.data)["model"]
             calls.append(model)
-            if model == config.SOL[0]:
+            if model in config.SOL:
                 raise IncompleteRead(b"x", 10)
             return Response()
         with patch("urllib.request.build_opener", return_value=SimpleNamespace(open=opened)):
             client = llm.Client({"OPENROUTER_API_KEY": "FAKEKEY123"}, FakeClock(), lambda *a: None)
             _, model = client.slot(config.SOL + config.FLASH, "fixture")
         self.assertEqual(model, config.FLASH[0])
-        self.assertEqual(calls, [config.SOL[0], config.SOL[0], config.FLASH[0]])
+        self.assertEqual(calls, [m for m in config.SOL for _ in range(2)] + [config.FLASH[0]])
 
     def test_R19_client_passes_remaining_total(self):
         calls = []

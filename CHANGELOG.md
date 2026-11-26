@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-26 - v1.2
+
+config.VERSION stays "v1"; runs are told apart by commit sha.
+
+Operational fix (anti-ban schedule): GitHub disabled Actions on this repository during run 1294 on 2026-11-06 23:44 UTC ("repository invocation blocked") after continuous 45-minute self-chained workflow_dispatch runs. Repository variables are now set to CHAIN_ENABLED=false, LOOP_MINUTES=1 and POLL_MINUTES=1 so the existing 20-minute cron schedule (`11,31,51 * * * *`) handles polling cleanly without continuous runner occupancy.
+
+Frontier model refresh (declared forecasting update; zero open tournament questions inspected or used):
+- `SOL` primary upgraded from `openai/gpt-6-sol` to `openai/gpt-6.2-sol-pro` (same OpenRouter $2/$10 per M token pricing, with `openai/gpt-6-sol` retained as automatic fallback #2 with identical weight 2 and `Sol` label).
+- `FLASH` primary upgraded from `google/gemini-3.8-flash` to `google/gemini-4-carbon` ($2/$10 per M tokens, with `google/gemini-3.8-flash`, `google/gemini-3.6-flash`, and `SOL` retained as automatic fallbacks).
+- `OPUS` (`anthropic/claude-opus-5.5`), `CHEAP` parser/summarizer (`google/gemini-3.8-flash`, `openai/gpt-6-luna`), web-research summarizer (`fbot/research2.py`), prompts, numeric CDF logic, post gate and aggregation rules are unchanged.
+
 ## 2026-10-04 - docs
 
 Public description corrected: no closed-question test was run. README now opens with the live record, the test basis and known limits. EDGE-2 switches recorded as off for the season. Settings changed late on 2026-10-03, Central time (early 2026-10-04 UTC), and first read by run 220: BUDGET_CAP_USD=128; MINIBENCH_PRESET=A; MINIBENCH_FLOOR_USD=65; PRESET_RESERVE_USD=10. No code change.

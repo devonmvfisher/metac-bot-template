@@ -10,8 +10,8 @@ FORBIDDEN_TARGETS = (33022, "summer-futureeval-2026",
                      33108, "metaculus-cup-fall-2026", "metaculus-cup")
 SEASON_END_UTC = "2027-01-07T00:00:00Z"
 OPUS = ("anthropic/claude-opus-5.5",)
-SOL = ("openai/gpt-6-sol",)
-FLASH = ("google/gemini-3.8-flash", "google/gemini-3.6-flash") + SOL
+SOL = ("openai/gpt-6.2-sol-pro", "openai/gpt-6-sol")
+FLASH = ("google/gemini-4-carbon", "google/gemini-3.8-flash", "google/gemini-3.6-flash") + SOL
 CHEAP = ("google/gemini-3.8-flash", "openai/gpt-6-luna")
 BRIDGE = ("gpt-6-sol",)
 # A tier addition changes this table, with its corresponding tests.
@@ -25,10 +25,20 @@ TIERS = {
 COST_SAFETY = 1.5
 DEADLINE_ODDS_MULT = 0.8
 SLOTS = {tier: tuple(chain for chain, weight in spec["runs"]) for tier, spec in TIERS.items()}
-MODEL_WEIGHTS = {chain[0]: weight for spec in TIERS.values() for chain, weight in spec["runs"]}
+MODEL_WEIGHTS = {
+    model: weight
+    for spec in TIERS.values()
+    for chain, weight in spec["runs"]
+    for model in (chain[:-len(SOL)] if chain == FLASH else chain)
+}
 def model_weight(model):
     return MODEL_WEIGHTS.get(model, MODEL_WEIGHTS[FLASH[0]])
-SHORT = {OPUS[0]: "Opus", SOL[0]: "Sol", BRIDGE[0]: "Bridge", **{m: "Flash" for m in FLASH[:-1]}}
+SHORT = {
+    **{m: "Opus" for m in OPUS},
+    **{m: "Sol" for m in SOL},
+    **{m: "Bridge" for m in BRIDGE},
+    **{m: "Flash" for m in FLASH[:-len(SOL)]},
+}
 PROBES = tuple(dict.fromkeys(OPUS + SOL + FLASH + (CHEAP[1],)))
 COSTS = {tier: spec["usd"] * COST_SAFETY for tier, spec in TIERS.items()}
 FLOOR_CREDIT = 2.00
@@ -51,7 +61,7 @@ def researcher_slot(env):
 
 def model_slots(env):
     direct = not env.get("OPENROUTER_API_KEY") and enabled(env, "USE_OPENAI_BRIDGE")
-    return {"default": "openai/gpt-6-sol" if direct else "openrouter/openai/gpt-6-sol",
+    return {"default": "openai/gpt-6-sol" if direct else "openrouter/" + SOL[0],
             "parser": "openai/gpt-6-sol" if direct else "openrouter/" + CHEAP[0],
             "summarizer": "openai/gpt-6-sol" if direct else "openrouter/" + CHEAP[0],
             "researcher": researcher_slot(env)}
