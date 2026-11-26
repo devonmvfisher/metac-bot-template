@@ -251,7 +251,7 @@ class ReviewTests(unittest.TestCase):
     def test_R07_Tier_C_Sol_Flash38_Flash36_404_429(self):
         self.assertEqual(config.SLOTS["C"], (config.SOL, config.FLASH, config.FLASH))
         self.assertEqual(config.SOL, ("openai/gpt-6.2-sol-pro", "openai/gpt-6-sol"))
-        self.assertEqual(config.FLASH, ("google/gemini-4-carbon", "google/gemini-3.8-flash", "google/gemini-3.6-flash") + config.SOL)
+        self.assertEqual(config.FLASH, ("google/gemini-3.8-flash", "google/gemini-3.6-flash") + config.SOL)
         flash_only = config.FLASH[:-len(config.SOL)]
         for status in (404, 429):
             fake = FakeLLM({model: [(status, {})] for model in flash_only})

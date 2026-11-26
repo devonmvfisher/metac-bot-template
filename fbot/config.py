@@ -11,7 +11,7 @@ FORBIDDEN_TARGETS = (33022, "summer-futureeval-2026",
 SEASON_END_UTC = "2027-01-07T00:00:00Z"
 OPUS = ("anthropic/claude-opus-5.5",)
 SOL = ("openai/gpt-6.2-sol-pro", "openai/gpt-6-sol")
-FLASH = ("google/gemini-4-carbon", "google/gemini-3.8-flash", "google/gemini-3.6-flash") + SOL
+FLASH = ("google/gemini-3.8-flash", "google/gemini-3.6-flash") + SOL
 CHEAP = ("google/gemini-3.8-flash", "openai/gpt-6-luna")
 BRIDGE = ("gpt-6-sol",)
 # A tier addition changes this table, with its corresponding tests.

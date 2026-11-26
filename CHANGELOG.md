@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-26 - v1.2.1
+
+Test Bot live verification (run 45780006349, preset A, bot-testing-area only, 9/9 posted, 9/9 AskNews ok) measured:
+- `anthropic/claude-opus-5.5`: 19/19 ok, $0.81 ($0.043/call).
+- `openai/gpt-6.2-sol-pro`: 19/19 ok, $0.59 ($0.031/call). Kept as primary `SOL` model (with `openai/gpt-6-sol` fallback).
+- `google/gemini-4-carbon`: 9/11 ok (2 errors), 164,476 output tokens (~18k/call), $1.71 ($0.19/call, 56% of Tier A spend for 1/9 weight) and 20m58s run latency. Reverted `FLASH` primary back to `google/gemini-3.8-flash` (`2/2` ok, ~$0.055/call) to preserve fast run times and keep Tier A near ~$0.16/question across the remaining $63.20 season budget.
+
 ## 2026-11-26 - v1.2
 
 config.VERSION stays "v1"; runs are told apart by commit sha.
